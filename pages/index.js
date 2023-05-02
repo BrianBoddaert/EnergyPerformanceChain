@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import Compound from '@compound-finance/compound-js';
 //import GetAllJsonsInFolder from '../apy.js';  
 
 export default function Home({ nftJsons }) {
@@ -10,7 +9,7 @@ export default function Home({ nftJsons }) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Compound dashboard</title>
+        <title>EPChain</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

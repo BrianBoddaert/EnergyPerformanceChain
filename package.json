@@ -1,5 +1,5 @@
 {
-  "name": "compound-dashboard",
+  "name": "EPChain",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@compound-finance/compound-js": "^0.5.2",
     "bootstrap": "^5.2.3",
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.1",
