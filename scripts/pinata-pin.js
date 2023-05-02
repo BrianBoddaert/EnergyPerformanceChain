@@ -60,5 +60,5 @@ const pinDataToPinata = async () => {
   }
 };
 
-//pinImagesToPinata()
-pinDataToPinata();
+pinImagesToPinata()
+//pinDataToPinata();
