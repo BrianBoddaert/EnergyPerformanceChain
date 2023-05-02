@@ -104,19 +104,19 @@ async function GetAllJsonsInFolder()
 {
     var Result = [];
 
-    const baseUrl = "https://gateway.pinata.cloud/ipfs/QmdfesFXsAZpS7hSvYUMM1dVQbqTYxK2g4iz35JbPcAyQ8"; //1.json
+    // const baseUrl = "https://gateway.pinata.cloud/ipfs/QmdfesFXsAZpS7hSvYUMM1dVQbqTYxK2g4iz35JbPcAyQ8"; //1.json
 
-    let i = 1;
-    let url = baseUrl + `/${i}.json`;
+    // let i = 1;
+    // let url = baseUrl + `/${i}.json`;
 
-    Result[i-1] = await GetJsonFromURL(url);
+    // //Result[i-1] = await GetJsonFromURL(url);
 
-    while (isUrlJson(url)) 
-    {
-       Result[i-1] = await GetJsonFromURL(url);
-       i++;
-       url = baseUrl + `/${i}.json`;
-    }
+    // while (isUrlJson(url)) 
+    // {
+    //    Result[i-1] = await GetJsonFromURL(url);
+    //    i++;
+    //    url = baseUrl + `/${i}.json`;
+    // }
 
     return Result;
 }
@@ -144,27 +144,27 @@ async function isUrlJson(url)
 
 async function GetJsonFromURL(url)
 {
-    return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-          let data = '';
+    // return new Promise((resolve, reject) => {
+    //     https.get(url, (response) => {
+    //       let data = '';
     
-          response.on('data', (chunk) => {
-            data += chunk;
-          });
+    //       response.on('data', (chunk) => {
+    //         data += chunk;
+    //       });
     
-          response.on('end', () => {
-            try {
-              const json = JSON.parse(data);
-              json.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
-              resolve(json);
-            } catch (error) {
-              reject(error);
-            }
-          });
-        }).on('error', (error) => {
-          reject(error);
-        });
-      });
+    //       // response.on('end', () => {
+    //       //   try {
+    //       //     // const json = JSON.parse(data);
+    //       //     // json.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
+    //       //     resolve();
+    //       //   } catch (error) {
+    //       //     reject(error);
+    //       //   }
+    //       // });
+    //     }).on('error', (error) => {
+    //       reject(error);
+    //     });
+    //   });
 
 }
 
