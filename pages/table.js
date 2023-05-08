@@ -1,73 +1,62 @@
-import styles from '../styles/Home.module.css'
+import { useState, useEffect } from 'react';
+import styles from '../styles/Table.module.css';
 
 export function Table() {
-    return(
-<table className={`table ${styles.table}`}>
-        <thead>
-          <tr>
-            <th>Place</th>
-            <th>Company name</th>
-            <th>CP Token</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#1</td>
-            <td className={`rounded-box ${styles.td}`}>Amazon</td>
+  const [data, setData] = useState([]);
+  const [sortColumn, setSortColumn] = useState('place');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  useEffect(() => {
+    // Define the data for the table
+    const tableData = [
+      { place: 1, company: 'Amazon', token: 'CP123' },
+      { place: 2, company: 'Microsoft', token: 'CP456' },
+      { place: 3, company: 'Google', token: 'CP789' }
+    ];
+    setData(tableData);
+  }, []);
+
+  const sortedData = data.slice().sort((a, b) => {
+    // Sort based on the selected column and direction
+    const direction = sortDirection === 'asc' ? 1 : -1;
+    if (sortColumn === 'place') {
+      return direction * (a.place - b.place);
+    } else if (sortColumn === 'company') {
+      return direction * a.company.localeCompare(b.company);
+    } else {
+      return 0;
+    }
+  });
+
+  const handleSortColumnClick = (column) => {
+    if (column === sortColumn) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  return (
+    <table className={`table ${styles.table}`}>
+      <thead>
+        <tr>
+          <th className={`rounded-box ${styles.filter}`} onClick={() => handleSortColumnClick('place')}>Place</th>
+          <th className={`rounded-box ${styles.filter}`} onClick={() => handleSortColumnClick('company')}>Company name</th>
+          <th>CP Token</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortedData.map((item, index) => (
+          <tr key={index}>
+            <td className={`rounded-box ${styles.td}`}>{item.place}</td>
+            <td className={`rounded-box ${styles.td}`}>{item.company}</td>
             <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
+              <img src="/Images/Icon.png" />
             </td>
           </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#2</td>
-            <td className={`rounded-box ${styles.td}`}>Google</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Apple</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Netflix</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Disney</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Prime</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Milka</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-          <tr>
-            <td className={`rounded-box ${styles.td}`}>#3</td>
-            <td className={`rounded-box ${styles.td}`}>Coca-Cola</td>
-            <td className={`rounded-box ${styles.td}`}>
-              <img src="/Images/Icon.png"/>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    );
+        ))}
+      </tbody>
+    </table>
+  );
 }

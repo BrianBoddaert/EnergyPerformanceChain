@@ -34,33 +34,7 @@
   margin: 10px 0px 15px 0px;
 }
 
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 4 8px;
-}
 
-.table th {
-  font-weight: bold;
-  background-color: #87CBB9;
-  padding: 8px;
-  border-radius: 5px;
-}
-
-.table td {
-  background-color: #c9e7de;
-  padding: 8px;
-  border-radius: 5px;
-}
-
-.rounded-box {
-  border-radius: 5px;
-  background-color: rgba(0, 123, 255, 0.1);
-}
-
-.table img {
-  max-width:30px;
-}
 
 
 

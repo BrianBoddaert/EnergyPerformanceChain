@@ -1,0 +1,25 @@
+  .headerbackground {
+    height: 200px;
+    background-color: #d3f1ca;
+    border-radius: 5px;
+    display: 'flex';
+    align-items: 'center';
+    justify-content: 'flex-start';
+  }
+
+  .headerbackground img{
+    max-width: 100%;
+    margin-top: 20px;
+    margin-left: 5px;
+  }
+
+  .buttonsholder{
+    display: flex;
+    justify-content: center;
+  }
+
+  .buttonsholder button{
+    margin: 5px;
+    border-radius: 5px;
+    background-color: #d3f1ca;
+  }
