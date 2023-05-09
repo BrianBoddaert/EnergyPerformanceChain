@@ -1,0 +1,31 @@
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4 8px;
+  }
+  
+  .table th {
+    font-weight: bold;
+    background-color: #83d38a;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  
+  .table td {
+    background-color: #dde8de;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  
+  .rounded-box {
+    border-radius: 5px;
+    background-color: rgba(0, 123, 255, 0.1);
+  }
+  
+  .table img {
+    max-width:30px;
+  }
+
+  .filter {
+    cursor: pointer;
+  }
