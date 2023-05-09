@@ -15,17 +15,21 @@ export function Table({nftJsons }) {
       token: json.image
     }));
     setData(tableData);
-  }
+  } 
     
   }, [nftJsons]);
 
   const sortedData = data.slice().sort((a, b) => {
     // Sort based on the selected column and direction
     const direction = sortDirection === 'asc' ? 1 : -1;
-    if (sortColumn === 'place') {
-      return direction * (a.place - b.place);
-    } else if (sortColumn === 'company') {
+if (sortColumn === 'company') {
       return direction * a.company.localeCompare(b.company);
+    } else if (sortColumn === 'consumption') {
+      return direction * (a.consumption - b.consumption);
+    } else if (sortColumn === 'green') {
+      return direction * (a.green - b.green);
+    } else if (sortColumn === 'sharing') {
+      return direction * (a.sharing - b.sharing);
     } else {
       return 0;
     }
@@ -40,11 +44,23 @@ export function Table({nftJsons }) {
     }
   };
 
+  const handleSelectChange = (event) => {
+    const column = event.target.value;
+    handleSortColumnClick(column);
+  };
+
   return (
     <table className={`table ${styles.table}`}>
       <thead>
         <tr>
-          <th className={`rounded-box ${styles.filter}`} onClick={() => handleSortColumnClick('place')}>Place</th>
+          <th className={`rounded-box ${styles.filter}`}> 
+            <select value={sortColumn} onChange={handleSelectChange}>
+              <option value="place">Overall</option>
+              <option value="consumption">Consumption</option>
+              <option value="green">Green</option>
+              <option value="sharing">Sharing</option>
+            </select>
+          </th>
           <th className={`rounded-box ${styles.filter}`} onClick={() => handleSortColumnClick('company')}>Company name</th>
           <th>CP Token</th>
         </tr>

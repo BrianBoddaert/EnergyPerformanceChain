@@ -29,3 +29,9 @@
   .filter {
     cursor: pointer;
   }
+
+  .filter select {
+    background-color: #f6e16a;
+    border-radius: 4px;
+    font-weight: 500;
+  }
