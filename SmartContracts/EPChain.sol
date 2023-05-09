@@ -46,16 +46,17 @@ contract EPChain is ERC721, Ownable
     }
 
     //Updating or registering a company and their data, currently only energyUsage but can be a struct containing all the other data
-    function updateOrRegisterCompany(uint id, uint energyUsage) public onlyOwner
+    function updateOrRegisterCompany(uint id, uint energyUsage, address companyAddress) public onlyOwner
     {
         //If companyEnergyUsage is 0 it means we are registering a company so we can increment the count
         if (companies[id].companyEnergyUsage == 0)
         {
             ++amountOfCompanies;
+            companies[id].companyAddress = companyAddress;
         }
         companies[id].companyEnergyUsage = energyUsage;
     }
-    
+
     //converts the usage to a color with range RED-GREEN
     function getHSL(uint id) public view returns (uint)
     {
