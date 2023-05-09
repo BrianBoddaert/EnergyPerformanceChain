@@ -48,7 +48,7 @@ contract EPChain is ERC721, Ownable
     //Updating or registering a company and their data, currently only energyUsage but can be a struct containing all the other data
     function updateOrRegisterCompany(uint id, uint energyUsage) public onlyOwner
     {
-        //If companyEnergyUsage is 0 it means we are registering a copmany so we can increment the count
+        //If companyEnergyUsage is 0 it means we are registering a company so we can increment the count
         if (companies[id].companyEnergyUsage == 0)
         {
             ++amountOfCompanies;
