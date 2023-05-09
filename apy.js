@@ -17,7 +17,7 @@ async function GetAllJsonsInFolder()
   {
     if (!(await isJsonWithImage(url)))
     {
-      break;
+     break;
     }
 
     Result[i-1] = await GetJsonFromURL(url);
@@ -29,6 +29,10 @@ async function GetAllJsonsInFolder()
   //   Result[i-1] = GetJsonFromURL(url);
   //   i++;
   //   url = baseUrl + `/${i}.json`;
+  // }
+  // for (let j = 0; j < 3; j++)
+  // {
+  //   Result[j] = await GetJsonFromURL(baseUrl);
   // }
 
   return Result;
@@ -78,7 +82,6 @@ async function isJsonWithImage(url)
 
 async function GetJsonFromURL(url)
 {
-
     // const testString = '{ "name":"SampleProj #1", "description":"These are my sampleproj pictures", "image":"ipfs://QmXhbZLVCsjdKaCz5Cw7kot3P3unBawrbzUPLcULrimamQ/1.png","attributes": [ {"trait_type":"Color","value":"Black&White"},{"trait_type":"Background","value":"Clouds"}],"external_url":""}';
     // const json = JSON.parse(testString);
     // json.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
