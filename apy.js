@@ -21,8 +21,11 @@ async function GetAllJsonsInFolder()
     }
 
     Result[i-1] = await GetJsonFromURL(url);
+    console.log(Result[i-1]);
     i++;
     url = baseUrl + `/${i}.json`;
+
+    
   }
   // while (isJsonWithImage(url)) 
   // { 
@@ -86,6 +89,7 @@ async function GetJsonFromURL(url)
     // const json = JSON.parse(testString);
     // json.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
 
+    
     // return json;
 
     return new Promise((resolve, reject) => {
@@ -101,7 +105,7 @@ async function GetJsonFromURL(url)
               const testString = '{ "name":"SampleProj #1", "description":"These are my sampleproj pictures", "image":"ipfs://QmXhbZLVCsjdKaCz5Cw7kot3P3unBawrbzUPLcULrimamQ/1.png","attributes": [ {"trait_type":"Color","value":"Black&White"},{"trait_type":"Background","value":"Clouds"}],"external_url":""}';
               const json = JSON.parse(data);
               json.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
-              resolve();
+              resolve(json);
             } catch (error) {
               reject(error);
             }
