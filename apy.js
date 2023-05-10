@@ -7,36 +7,26 @@ const https = require('https');
 async function GetAllJsonsInFolder()
 {
   var Result = [];
-
+  const JsonsPerPageLimit = 30;
   const baseUrl = "https://gateway.pinata.cloud/ipfs/QmdfesFXsAZpS7hSvYUMM1dVQbqTYxK2g4iz35JbPcAyQ8"; //1.json
 
-  let i = 1;
-  let url = baseUrl + `/${i}.json`;
+  console.log("Started pulling Jsons from IPFS...");
 
-  for (let j = 0; j < 3; j++)
+  for (let i = 0; i < JsonsPerPageLimit; i++)
   {
+    console.log("checking iteration " + i);
+    let url = baseUrl + `/${i+1}.json`;
+
     if (!(await isJsonWithImage(url)))
     {
-     break;
+      break;
     }
 
-    Result[i-1] = await GetJsonFromURL(url);
-    console.log(Result[i-1]);
-    i++;
-    url = baseUrl + `/${i}.json`;
-
-    
+    Result[i] = await GetJsonFromURL(url);
+    console.log(Result[i]);
   }
-  // while (isJsonWithImage(url)) 
-  // { 
-  //   Result[i-1] = GetJsonFromURL(url);
-  //   i++;
-  //   url = baseUrl + `/${i}.json`;
-  // }
-  // for (let j = 0; j < 3; j++)
-  // {
-  //   Result[j] = await GetJsonFromURL(baseUrl);
-  // }
+
+  console.log("Completed pulling Jsons from IPFS!");
 
   return Result;
 }
