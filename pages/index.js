@@ -6,7 +6,7 @@ import styles from '../styles/Main.module.css';
 const nftJsons = [
   {
     name: 'Company A',
-    image: 'https://via.placeholder.com/150',
+    image: 'images/Icon.png',
     overall: 8.1,
     consumption: 6.3,
     green: 8.2,
@@ -14,7 +14,7 @@ const nftJsons = [
   },
   {
     name: 'Company B',
-    image: 'https://via.placeholder.com/150',
+    image: 'images/Icon.png',
     overall: 9.5,
     consumption: 8.7,
     green: 9.1,
@@ -22,7 +22,7 @@ const nftJsons = [
   },
   {
     name: 'Company C',
-    image: 'https://via.placeholder.com/150',
+    image: 'images/Icon.png',
     overall: 7.8,
     consumption: 5.9,
     green: 8.5,
@@ -30,7 +30,7 @@ const nftJsons = [
   },
   {
     name: 'Company D',
-    image: 'https://via.placeholder.com/150',
+    image: 'images/Icon.png',
     overall: 8.3,
     consumption: 7.2,
     green: 7.9,
@@ -38,7 +38,7 @@ const nftJsons = [
   },
   {
     name: 'Company E',
-    image: 'https://via.placeholder.com/150',
+    image: 'images/Icon.png',
     overall: 9.2,
     consumption: 8.6,
     green: 9.3,

@@ -6,7 +6,7 @@
   
   .table th {
     font-weight: bold;
-    background-color: #83d38a;
+    background-color: #82a084;
     padding: 8px;
     border-radius: 5px;
   }
@@ -34,4 +34,8 @@
     background-color: #f6e16a;
     border-radius: 4px;
     font-weight: 500;
+  }
+
+  .selected {
+    background-color: #74c738 !important; /* Change to the desired background color */
   }
