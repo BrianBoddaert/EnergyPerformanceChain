@@ -47,21 +47,21 @@ const nftJsons = [
   },
 ];
 
-// export async function getServerSideProps(context) {
-//   const nftJsons = await Promise.resolve(GetAllJsonsInFolder());
-//   // const apys = await Promise.all([
-//   //   calculateApy(Compound.cDAI, 'DAI'),
-//   //   calculateApy(Compound.cUSDC, 'USDC'),
-//   //   calculateApy(Compound.cUSDT, 'USDT'),
-//   // ]);
+export async function getServerSideProps(context) {
+  const nftJsons = await Promise.resolve(GetAllJsonsInFolder());
+  // const apys = await Promise.all([
+  //   calculateApy(Compound.cDAI, 'DAI'),
+  //   calculateApy(Compound.cUSDC, 'USDC'),
+  //   calculateApy(Compound.cUSDT, 'USDT'),
+  // ]);
 
 
-//   return {
-//     props: {
-//       nftJsons
-//     },
-//   }
-// }
+  return {
+    props: {
+      nftJsons
+    },
+  }
+}
 
 function App({nftJsons }) {
     return (

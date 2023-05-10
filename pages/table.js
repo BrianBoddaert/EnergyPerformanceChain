@@ -12,7 +12,7 @@ export function Table({nftJsons }) {
     // Define the data for the table
     if (nftJsons) 
     {
-      const tableData = nftJsons.map((json, index) => ({
+      const tableData = nftJsons.map((json) => ({
       company: json.name,
       token: json.image,
       overall: json.overall,
