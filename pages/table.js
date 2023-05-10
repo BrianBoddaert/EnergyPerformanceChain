@@ -10,8 +10,9 @@ export function Table({nftJsons }) {
 
   useEffect(() => {
     // Define the data for the table
-    if (nftJsons) {
-    const tableData = nftJsons.map((json, index) => ({
+    if (nftJsons) 
+    {
+      const tableData = nftJsons.map((json, index) => ({
       company: json.name,
       token: json.image,
       overall: json.overall,
@@ -21,7 +22,7 @@ export function Table({nftJsons }) {
     }));
     setData(tableData);
   } 
-    
+
   }, [nftJsons]);
 
   const sortedData = data.slice().sort((a, b) => {
