@@ -17,12 +17,13 @@ async function GetAllJsonsInFolder()
     console.log("checking iteration " + i);
     let url = baseUrl + `/${i+1}.json`;
 
-    if (!(await isJsonWithImage(url)))
+    const JsonWithImage = await isJsonWithImage(url);
+    if (!JsonWithImage[0])
     {
       break;
     }
 
-    Result[i] = await GetJsonFromURL(url);
+    Result[i] = JsonWithImage[1];
     console.log(Result[i]);
   }
 
@@ -39,7 +40,8 @@ async function isJsonWithImage(url)
     });
 
     const contentType = response.headers['content-type'];
-    
+    let jsonData = '';
+
     if (contentType && contentType.includes('application/json')) {
       const data = await new Promise((resolve, reject) => {
         let json = '';
@@ -50,7 +52,7 @@ async function isJsonWithImage(url)
 
         response.on('end', () => {
           try {
-            const jsonData = JSON.parse(json);
+            jsonData = JSON.parse(json);
             resolve(jsonData);
           } catch (error) {
             reject(error);
@@ -58,17 +60,19 @@ async function isJsonWithImage(url)
         });
       });
 
-      if (data.hasOwnProperty('image')) {
-        return true;
+      if (data.hasOwnProperty('image')) 
+      {
+        jsonData.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
+        return [true,jsonData];
       } else {
-        return false;
+        return [false,''];
       }
     } else {
-      return false;
+      return [false,''];
     }
   } catch (error) {
     console.error(`Error checking if ${url} is JSON with image property: ${error.message}`);
-    return false;
+    return [false,''];
   }
 
 }
