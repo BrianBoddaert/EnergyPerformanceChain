@@ -20,7 +20,7 @@ contract EPChain is ERC721, Ownable
 
     Counters.Counter private _tokenIds;
 
-    uint public MINT_PRICE = 0;
+    uint private MINT_PRICE = 0;
 
     function setMintPrice(uint mintPrice) public onlyOwner
     {
@@ -29,12 +29,12 @@ contract EPChain is ERC721, Ownable
     
     //ID to company
     mapping(uint => Company) private companies;
-    uint amountOfCompanies;
+    uint private amountOfCompanies;
 
     //Temporary var 
     uint MAX_ENERGY_EFFICIENCY = 100;
     
-    string private _baseURL = "ipfs://QmSEnR92cZG8fdts4xG5mFZ1HwsqVv8MEgqCSKyyYANmcy";
+    string private _baseURL = "https://gateway.pinata.cloud/ipfs/QmdpvArQjD5Dpfp9e3YNqAnfaA8Ccx5oX8ydNeyUNtpM9E";
 
     constructor() ERC721("EPChain", "EPC")
     {}
@@ -43,6 +43,12 @@ contract EPChain is ERC721, Ownable
     function setBaseURL(string memory baseURL) public onlyOwner
     {
         _baseURL = baseURL;
+    }
+
+    //Has to be overriden to return the custom base URL that we have given
+    function _baseURI() internal view override returns (string memory) 
+    {
+        return _baseURL;
     }
 
     //Updating or registering a company and their data, currently only energyUsage but can be a struct containing all the other data
@@ -63,12 +69,6 @@ contract EPChain is ERC721, Ownable
         //120 for the color. first 1 is for the formule and second 1 is to revert the outcome for example 0.1 should be 0.9
         return 120 * 1 - (1 - (companies[id].companyEnergyUsage / MAX_ENERGY_EFFICIENCY));
     }
-    
-    //get the total supply of the NFTs
-    function getTotalSupply() external view returns (uint)
-    {
-        return _tokenIds.current();
-    }
 
     //Uses the token Id that we assign to it when minted to bind the NFT to the correct metadata in the _baseURI CID folder on IPFS
     function tokenURI(uint tokenId) public view override returns (string memory) 
@@ -82,21 +82,35 @@ contract EPChain is ERC721, Ownable
     }
 
     //Minting NFT for the registered companies
-    function mintForRegisteredCompanies() external onlyOwner 
+    function mintForRegisteredCompanies(uint date) external onlyOwner 
     {
         for (uint i = 1; i <= amountOfCompanies; ++i)
         {
-            _mintToken(companies[i].companyAddress);
+            _mintToken(date, companies[i].companyAddress);
         }
         _tokenIds.reset();
     }
 
     //Internal mint function that increments the token id (will always be equal to the index in for loop where it's being called) and mints
-    function _mintToken(address to) internal 
+    function _mintToken(uint date, address to) internal 
     {
         _tokenIds.increment();
         uint newItemId = _tokenIds.current();
-        _safeMint(to, newItemId);
+        _safeMint(to, concatenateUint(date, newItemId));
         companies[newItemId].mintedCount += 1;
+    }
+
+    //Takes two uints and combines them into one uint
+    function concatenateUint(uint date, uint value) internal pure returns (uint)
+    {
+        uint digits = 0;
+        uint temp = value;
+        while (temp != 0) 
+        {
+            digits++;
+            temp /= 10;
+        }
+        uint factor = 10 ** digits;
+        return date * factor + value;
     }
 }

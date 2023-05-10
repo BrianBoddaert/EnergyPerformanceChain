@@ -7,11 +7,12 @@ const JWT = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24
 
 //CID vars
 let imgFolderCID = "";
+let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
 
 const pinImagesToPinata = async () => 
 {
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-  const src = "../Images";
+  const src = "../Images" + date;
   try {
     const { dirs, files } = await rfs.read(src);
     let data = new FormData();
@@ -39,7 +40,7 @@ const pinImagesToPinata = async () =>
 const pinMetaDataToPinata = async () => 
 {
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-  const src = "../Data";
+  const src = "../Data" + date;
   try {
     const { dirs, files } = await rfs.read(src);
     let data = new FormData();
@@ -77,7 +78,7 @@ const createMetadata = async (_id) =>
   const metadata = {
     name: "companyName",
     description: "givenDescription",
-    image: "ipfs://" + imgFolderCID + "/" + _id + ".png",
+    image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
       {
         energyEfficiency: "givenValue"
@@ -90,7 +91,7 @@ const createMetadata = async (_id) =>
   const metadataJson = JSON.stringify(metadata);
 
   // Define the file path and name
-  const filePath = '../Data/' + _id + '.json';
+  const filePath = '../Data' + date + '/' + date + _id + '.json';
 
   // Write the metadata JSON to a file
   fs.writeFile(filePath, metadataJson, err => {
@@ -115,7 +116,7 @@ const mainFunction = async () =>
 
   //creating metadata in the ../data for each company based on smart contract read values and created images
   //hardcoded to a for loop of 2 for now
-  for (let i = 1; i <= 2; i++) 
+  for (let i = 1; i <= 1; i++) 
   {
     createMetadata(i);
   }
@@ -125,6 +126,3 @@ const mainFunction = async () =>
 }
 
 mainFunction();
-
-
-//TODO: change folder paths of both data and img to be the current year-month instead of hardcoded
