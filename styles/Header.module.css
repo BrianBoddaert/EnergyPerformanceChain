@@ -1,7 +1,7 @@
   .headerbackground {
     height: 200px;
-    background-color: #d3f1ca;
-    border-radius: 5px;
+    background-color: #d3f0ca;
+    border-radius: 8px;
     display: 'flex';
     align-items: 'center';
     justify-content: 'flex-start';

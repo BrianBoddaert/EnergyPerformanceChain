@@ -31,13 +31,13 @@ export function Table({nftJsons }) {
     if (sortColumn === 'company') {
       return direction * a.company.localeCompare(b.company);
     } else if (sortColumn === 'consumption') {
-      return direction * String(a.consumption).localeCompare(String(b.consumption));
+      return String(a.consumption).localeCompare(String(b.consumption));
     } else if (sortColumn === 'green') {
-      return direction * String(a.green).localeCompare(String(b.green));
+      return String(b.green).localeCompare(String(a.green));
     } else if (sortColumn === 'sharing') {
-      return direction * String(a.sharing).localeCompare(String(b.sharing));
+      return String(b.sharing).localeCompare(String(a.sharing));
     } else if (sortColumn === 'overall') {
-      return direction * String(a.overall).localeCompare(String(b.overall));
+      return String(b.overall).localeCompare(String(a.overall));
     } else {
       return 0;
     }
@@ -74,7 +74,8 @@ export function Table({nftJsons }) {
     <table className={`table ${styles.table}`}>
       <thead>
         <tr>
-          <th className={`rounded-box ${styles.filter} ${selectedColumn === 'specific' ? styles.selected : ''}`} onClick={() => forceSelectChange('overall')}> 
+          <th></th>
+          <th className={`${styles.filter} ${selectedColumn === 'specific' ? styles.selected : ''}`} onClick={() => forceSelectChange('overall')}> 
             <select value={selectedOption} onChange={handleSelectChange}>
               <option value="overall">Overall</option>
               <option value="consumption">Consumption</option>
@@ -82,14 +83,15 @@ export function Table({nftJsons }) {
               <option value="sharing">Sharing</option>
             </select>
           </th>
-          <th className={`rounded-box ${styles.filter} ${selectedColumn === 'company' ? styles.selected : ''}`} onClick={() => handleSortColumnClick('company')}>Company name</th>
-          <th>CP Token</th>
+          <th className={`${styles.mainTableHead} ${styles.filter} ${selectedColumn === 'company' ? styles.selected : ''}`} onClick={() => handleSortColumnClick('company')}>Company name</th>
+          <th className={`${styles.mainTableHead}`}>CP Token</th>
         </tr>
       </thead>
       <tbody>
         {sortedData.map((item, index) => (
-          <tr key={index}>
-            <td className={`rounded-box ${styles.td}`}>{item[selectedOption]}</td>
+          <tr key={index} className={`${index % 2 === 0 ? styles.rowEven : styles.rowOdd}`}>
+            <td> #{index + 1} </td>
+            <td className={`rounded-box ${styles.td} ${styles.rowEven}`}>{item[selectedOption]}</td>
             <td className={`rounded-box ${styles.td}`}>{item.company}</td>
             <td className={`rounded-box ${styles.td}`}>
             <img src={item.token}/>

@@ -1,26 +1,37 @@
 .table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 4 8px;
-  }
+  /* width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px; */
+  border-collapse: collapse;
+}
+
+.table th {
+  position: relative;
+  font-weight: bold;
+  background-color: #7fae8a;
+  color: #2f452f;
+  padding: 12px;
+  padding-left: 15px;
+  text-align: left;
+  border-radius: 8px;
+  padding-right: 8px; 
+  border-right: 2px solid transparent;
+  border-left: 2px solid transparent;
+  border-bottom: 5px solid transparent;
+}
   
-  .table th {
-    font-weight: bold;
-    background-color: #82a084;
-    padding: 8px;
-    border-radius: 5px;
-  }
-  
-  .table td {
-    background-color: #dde8de;
-    padding: 8px;
-    border-radius: 5px;
-  }
-  
-  .rounded-box {
-    border-radius: 5px;
-    background-color: rgba(0, 123, 255, 0.1);
-  }
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.rowEven {
+  background-color: #ebedea;
+}
+
+.rowOdd {
+  background-color: #f6f9f5;
+}
   
   .table img {
     max-width:30px;
@@ -30,12 +41,12 @@
     cursor: pointer;
   }
 
-  .filter select {
-    background-color: #f6e16a;
-    border-radius: 4px;
-    font-weight: 500;
+  .table select {
+    background-color: #a2cfb4;
+    border-radius: 5px;
   }
 
   .selected {
-    background-color: #74c738 !important; /* Change to the desired background color */
+    background-color: #8fd160 !important;
+    color: #ffffff;
   }
