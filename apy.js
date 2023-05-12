@@ -53,20 +53,23 @@ async function isJsonWithImage(url)
         response.on('end', () => {
           try {
             jsonData = JSON.parse(json);
-            resolve(jsonData);
+
+            if (jsonData.hasOwnProperty('image')) 
+            {
+              jsonData.image = 'https://ipfs.io/ipfs/' + jsonData.image.substring(7);
+              resolve(jsonData);
+            }
+            else
+            {
+              reject('')
+            }
           } catch (error) {
-            reject(error);
+            reject('');
           }
         });
       });
 
-      if (data.hasOwnProperty('image')) 
-      {
-        jsonData.image = 'https://ipfs.io/ipfs/' + json.image.substring(7);
-        return [true,jsonData];
-      } else {
-        return [false,''];
-      }
+      return [true,data];
     } else {
       return [false,''];
     }
@@ -74,6 +77,8 @@ async function isJsonWithImage(url)
     console.error(`Error checking if ${url} is JSON with image property: ${error.message}`);
     return [false,''];
   }
+
+
 
 }
 
