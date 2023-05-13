@@ -1,7 +1,7 @@
 .table {
-  /* width: 100%;
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 0 8px; */
+  border-spacing: 0 8px;
   border-collapse: collapse;
 }
 
@@ -18,6 +18,15 @@
   border-right: 2px solid transparent;
   border-left: 2px solid transparent;
   border-bottom: 5px solid transparent;
+}
+
+.table canvas {
+  height: 30px !important;
+}
+
+.companyHead {
+  width: 35%;
+  height: 10px;
 }
   
 .table td {

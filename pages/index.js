@@ -22,7 +22,7 @@ export async function getServerSideProps(context) {
   //     sharing: 9.0,
   //   },
   //   {
-  //     name: 'Coca-Cola Company',
+  //     name: 'Apple Inc.',
   //     image: 'images/Icon.png',
   //     overall: 9.5,
   //     consumption: 8.7,
@@ -30,7 +30,7 @@ export async function getServerSideProps(context) {
   //     sharing: 9.7,
   //   },
   //   {
-  //     name: 'Toyota Motor Corporation',
+  //     name: 'Apple Inc.',
   //     image: 'images/Icon.png',
   //     overall: 7.8,
   //     consumption: 5.9,
@@ -38,7 +38,7 @@ export async function getServerSideProps(context) {
   //     sharing: 7.5,
   //   },
   //   {
-  //     name: 'Amazon.com, Inc.',
+  //     name: 'Apple Inc.',
   //     image: 'images/Icon.png',
   //     overall: 8.3,
   //     consumption: 7.2,
@@ -46,14 +46,14 @@ export async function getServerSideProps(context) {
   //     sharing: 8.8,
   //   },
   //   {
-  //     name: 'Uber Technologies, Inc.',
+  //     name: 'Apple Inc.',
   //     image: 'images/Icon.png',
   //     overall: 3.2,
   //     consumption: 6.4,
   //     green: 4.5,
   //     sharing: 8.6,
   //   },  {
-  //     name: 'Nike, Inc.',
+  //     name: 'Apple Inc.',
   //     image: 'images/Icon.png',
   //     overall: 2.5,
   //     consumption: 5.8,
