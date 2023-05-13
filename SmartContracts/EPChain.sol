@@ -55,7 +55,7 @@ contract EPChain is ERC721, Ownable
     function updateOrRegisterCompany(uint id, uint energyUsage, address companyAddress) public onlyOwner
     {
         //If companyEnergyUsage is 0 it means we are registering a company so we can increment the count
-        if (companies[id].companyEnergyUsage == 0)
+        if (companies[id].companyAddress == address(0x0)) //check if it works!!!
         {
             ++amountOfCompanies;
             companies[id].companyAddress = companyAddress;

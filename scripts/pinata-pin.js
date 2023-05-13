@@ -115,7 +115,7 @@ const mainFunction = async () =>
   imgFolderCID = await pinImagesToPinata();
 
   //creating metadata in the ../data for each company based on smart contract read values and created images
-  //hardcoded to a for loop of 2 for now
+  //hardcoded to a for loop of 1 for now
   for (let i = 1; i <= 1; i++) 
   {
     createMetadata(i);
