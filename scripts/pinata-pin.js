@@ -14,7 +14,7 @@ const Web3 = require('web3');
 const web3 = new Web3(process.env.INFURA_URL);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0xdC55902925266A8ccC7972143789A06e5616FC65' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0xfa21357c651a671477b6a43426FF78ca23C71DdE' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -26,62 +26,63 @@ let imgFolderCID = "";
 let dataFolderCID = "";
 let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
 
-const pinImagesToPinata = async () => 
+const pinImagesToPinata = async () =>
 {
-  const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-  const src = "../Images" + date;
+  const url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const src = '../Images' + date;
+
   try {
     const { dirs, files } = await rfs.read(src);
     let data = new FormData();
+
     for (const file of files) {
-      data.append(`file`, fs.createReadStream(file), {
+      data.append('file', fs.createReadStream(file), {
         filepath: basePathConverter(src, file),
       });
-    }    
+    }
+
     const response = await axios.post(url, data, {
-        headers: {
-          "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-          "Authorization": JWT
-        },
-        // onUploadProgress: progressEvent => {
-        //   console.log(progressEvent);
-        // }
-      })
-    console.log("Pin image succeeded!"); // this logs the CID key
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        Authorization: JWT,
+      },
+    });
+
+    console.log('Pin image succeeded!'); // This logs the CID key
     return response.data.IpfsHash;
   } catch (error) {
-    console.log("Pin image failed!");
+    console.log('Pin image failed!', error);
   }
 };
 
-const pinMetaDataToPinata = async () => 
+const pinMetaDataToPinata = async () =>
 {
-  const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-  const src = "../Data" + date;
+  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const src = '../Data' + date;
+
   try {
     const { dirs, files } = await rfs.read(src);
     let data = new FormData();
+
     for (const file of files) {
-      // Only include JSON files
-      if (file.endsWith(".json")) {
+      if (file.endsWith('.json')) {
         data.append(`file`, fs.createReadStream(file), {
           filepath: basePathConverter(src, file),
         });
       }
     }
-    const response = await axios.post(url, data, {
+
+    const response = await axios.post(pinataURL, data, {
       headers: {
-        "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-        "Authorization": JWT
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        'Authorization': JWT,
       },
-      // onUploadProgress: progressEvent => {
-      //   console.log(progressEvent);
-      // }
     });
-    console.log("Pin metadata succeeded!");
+
+    console.log('Pin metadata succeeded!');
     return response.data.IpfsHash;
   } catch (error) {
-    console.log("Pin metadata failed!");
+    console.log('Pin metadata failed!', error);
   }
 };
 
@@ -121,7 +122,8 @@ const createMetadata = async (_id) =>
   });
 }
 
-const readCSVFileAndRegisterOrUpdateCompanies = async () => {
+const readCSVFileAndRegisterOrUpdateCompanies = async () =>
+{
   const stream = fs.createReadStream('../CompanyInfo.csv')
     .pipe(csv());
 
@@ -149,26 +151,43 @@ const readCSVFileAndRegisterOrUpdateCompanies = async () => {
 
 const mintNFTs = async () =>
 {
-  await EPChainContract.methods.mintForRegisteredCompanies(date).send
-  (
-    {
-      from : '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
-      gas: 3000000,
-    }
-  )
-}
+  return new Promise((resolve, reject) =>
+  {
+    EPChainContract.methods.mintForRegisteredCompanies(date).send({
+      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+      gas: 4000000,
+      gasPrice: '5000000000',
+    })
+      .on('receipt', (receipt) => {
+        console.log('Mint NFTs succeeded!');
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        console.log('Mint NFTs failed!', error);
+        reject(error);
+      });
+  });
+};
 
 const updateCIDValueOnSmartContract = async () =>
 {
-  console.log(dataFolderCID);
-  await EPChainContract.methods.setBaseURL(dataFolderCID).send
-  (
-    {
-      from : '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+  return new Promise((resolve, reject) =>
+  {
+    EPChainContract.methods.setBaseURL(dataFolderCID).send({
+      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
       gas: 3000000,
-    }
-  )
-}
+    })
+      .on('receipt', (receipt) => {
+        console.log('Update CID value succeeded!');
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        console.log('Update CID value failed!', error);
+        reject(error);
+      });
+  });
+};
+
 
 const mainFunction = async () =>
 {
@@ -192,13 +211,13 @@ const mainFunction = async () =>
   }
 
   //Wait for 10 seconds before pinning the metadata to Pinata
-  dataFolderCID = await setTimeout(() => { pinMetaDataToPinata(); }, 10000);
+  dataFolderCID = await setTimeout(() => { pinMetaDataToPinata(); }, 8000);
 
   //Setting the new CID of the metadata on the smart contract
-  await updateCIDValueOnSmartContract();
+  setTimeout(() => { updateCIDValueOnSmartContract(); }, 15000);
 
   //Minting the NFT's for all registered companies
-  setTimeout(() => { mintNFTs(); }, 10000);
+  setTimeout(() => { mintNFTs(); }, 30000);
 }
 
 //Calling the main function every month
