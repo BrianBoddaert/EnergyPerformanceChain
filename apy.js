@@ -8,14 +8,16 @@ async function GetAllJsonsInFolder()
 {
   var Result = [];
   const JsonsPerPageLimit = 30;
-  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmdfesFXsAZpS7hSvYUMM1dVQbqTYxK2g4iz35JbPcAyQ8"; //1.json
+  const year = 2023;
+  const month = '05';
+  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmV8DtQzU5ffGseHbtp3rszso8QVuDS6hbpCyxHCoopH5b/"; //1.json
 
   console.log("Started pulling Jsons from IPFS...");
 
   for (let i = 0; i < JsonsPerPageLimit; i++)
   {
     console.log("checking iteration " + i);
-    let url = baseUrl + `/${i+1}.json`;
+    let url = baseUrl + `/` + year + month + `${i+1}.json`;
 
     const JsonWithImage = await isJsonWithImage(url);
     if (!JsonWithImage[0])
