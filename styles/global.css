@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    padding: 0;
+
+    /* background-image: url("../public/Images/leavesdark.png"); */
+    height: 100vh;
+    width: 100vw;
+
+    --background-image-light: url("../public/Images/leaves.png");
+    --background-image-dark: url("../public/Images/leavesdark.png");
+    --text-color-light: #000;
+    --text-color-dark: #fff;
+  }
