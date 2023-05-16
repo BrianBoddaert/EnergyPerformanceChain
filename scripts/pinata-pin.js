@@ -11,10 +11,12 @@ const axios = require('axios');
 const JWT = process.env.JWT
 //Web3 details
 const Web3 = require('web3');
-const web3 = new Web3(process.env.INFURA_URL);
+//Using volta testnet
+const providerUrl = 'https://volta-rpc.energyweb.org';
+const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0xfa21357c651a671477b6a43426FF78ca23C71DdE' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x5ebEcAb5eE912D9f96f8DdfFe20e7b34AF7D1136' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
