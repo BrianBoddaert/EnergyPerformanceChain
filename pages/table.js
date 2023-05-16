@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from '../styles/Table.module.css';
 import Chart from 'chart.js/auto';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 export function Table({nftJsons }) {
   const [data, setData] = useState([]);
@@ -118,6 +119,16 @@ export function Table({nftJsons }) {
     return Array.from({ length: 5 }, () => Math.random() * 10);
   };
 
+  const handleButtonClick = () => {
+    // Send data to the new page
+    const descr = 'Google LLC is an American multinational technology company focusing on online advertising, search engine technology, cloud computing, computer software, quantum computing, e-commerce, artificial intelligence, and consumer electronics.';
+    const dataToSend = { company: 'Google Inc.', description: descr, consumption: 100,  green: 30, sharing: 70};
+    // Use URL query parameters to pass the data
+    const queryParams = new URLSearchParams(dataToSend).toString();
+    // Navigate to the new page with the data
+    window.location.href = `/details?${queryParams}`;
+  };
+
   return (
     <table className={`${styles.table}`}>
     <thead>
@@ -141,7 +152,7 @@ export function Table({nftJsons }) {
         <tr key={index} className={`${index % 2 === 0 ? styles.rowEven : styles.rowOdd}`}>
           <td>#{index + 1}</td>
           <td className={`rounded-box ${styles.td}`}>{item[selectedOption]}</td>
-          <td className={`rounded-box ${styles.td}`}>{item.company}</td>
+          <td className={`rounded-box ${styles.td} ${styles.makeClicky}`} onClick={() => handleButtonClick()}>{item.company}</td>
           <td className={`rounded-box ${styles.td}`}>
             <img src={item.token} alt={item.company} />
           </td>

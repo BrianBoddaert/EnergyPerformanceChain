@@ -71,10 +71,12 @@ export async function getServerSideProps(context) {
 
 function App({nftJsons }) {
     return (
+      <div className={`Container ${styles.Main}`}>
         <div className={`Container ${styles.Container}`}>
             <Header />
             <Table nftJsons={nftJsons} />
         </div>
+      </div>
     );
 }
 

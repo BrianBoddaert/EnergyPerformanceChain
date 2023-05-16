@@ -4,18 +4,23 @@ import fetch from "node-fetch";
 const provider = 'https://mainnet.infura.io/v3/fb039c9592f7494092d531602fb06e12';
 const https = require('https');
 
-async function GetAllJsonsInFolder()
+//const LoadedMetadata = new Map();
+
+async function LoadMetaData()
 {
   var Result = [];
   const JsonsPerPageLimit = 30;
-  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmdfesFXsAZpS7hSvYUMM1dVQbqTYxK2g4iz35JbPcAyQ8"; //1.json
+  const year = 2023;
+  const month = '05';
+
+  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmV8DtQzU5ffGseHbtp3rszso8QVuDS6hbpCyxHCoopH5b/"; //1.json
 
   console.log("Started pulling Jsons from IPFS...");
 
   for (let i = 0; i < JsonsPerPageLimit; i++)
   {
     console.log("checking iteration " + i);
-    let url = baseUrl + `/${i+1}.json`;
+    let url = baseUrl + `/` + year + month + `${i+1}.json`;
 
     const JsonWithImage = await isJsonWithImage(url);
     if (!JsonWithImage[0])
@@ -30,6 +35,11 @@ async function GetAllJsonsInFolder()
   console.log("Completed pulling Jsons from IPFS!");
 
   return Result;
+}
+
+async function GetAllJsonsInFolder()
+{
+  return LoadMetaData();
 }
 
 async function isJsonWithImage(url) 
@@ -116,5 +126,19 @@ async function GetJsonFromURL(url)
 
 }
 
+async function MetaMaskButtonClicked()
+{
+    const metaMaskButton = document.getElementById('metamaskbutton');
+    if (!window.ethereum)
+    {
+      metaMaskButton.innerText = 'No access to MetaMask in your browser';
+      return false;
+    }
+    else
+    {
+      const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+
+    }
+}
 
 export default GetAllJsonsInFolder
