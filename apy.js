@@ -12,7 +12,8 @@ async function LoadMetaData()
   const JsonsPerPageLimit = 30;
   const year = 2023;
   const month = '05';
-  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmV8DtQzU5ffGseHbtp3rszso8QVuDS6hbpCyxHCoopH5b"; //1.json
+
+  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmV8DtQzU5ffGseHbtp3rszso8QVuDS6hbpCyxHCoopH5b/"; //1.json
 
   console.log("Started pulling Jsons from IPFS...");
 
