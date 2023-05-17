@@ -134,6 +134,7 @@ const createMetadata = async (_id) => {
 const readCSVFileAndRegisterCompanies = async () =>
 {
   //Pushing one here for the ignored 0 index so we start from 1 in the for loop
+  companyData.length = 0;
   companyData.push([ 0, 0, "0x0" ]);
 
   const stream = fs.createReadStream('../CompanyInfo.csv')
