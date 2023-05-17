@@ -16,7 +16,7 @@ const providerUrl = 'https://volta-rpc.energyweb.org';
 const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0xE9C2C7d440Fe7d5516bCA32e60a5a3e81B8CB7ff' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x63225FFaB6B5fF75835FA017470ECF0E7f30Bc60' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -102,7 +102,12 @@ const createMetadata = async (_id) => {
     image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
       {
-        energyEfficiency: companyData[_id][1]
+        energyEfficiency: companyData[_id][1],
+        // energyGreen: Math.random() * 100,
+        // energySharing: Math.random() * 100,
+        // averageEfficiency: Math.random() * 100,
+        // averageGreen: Math.random() * 100,
+        // averageSharing: Math.random() * 100,
       }
     ]
   };
@@ -126,7 +131,7 @@ const createMetadata = async (_id) => {
   });
 };
 
-const readCSVFileAndRegisterOrUpdateCompanies = async () =>
+const readCSVFileAndRegisterCompanies = async () =>
 {
   //Pushing one here for the ignored 0 index so we start from 1 in the for loop
   companyData.push([ 0, 0, "0x0" ]);
@@ -202,7 +207,10 @@ const updateCIDValueOnSmartContract = async () =>
 const mainFunction = async () =>
 {
   //Reading the CompanyInfo.csv file and registering/updating the companies to the smart contract
-  await readCSVFileAndRegisterOrUpdateCompanies();
+  await readCSVFileAndRegisterCompanies();
+
+  //Get the average scores (usage, shared, etc...)
+  //await calculateAverageValues();
 
   //Creating images in the ../imgFolder for each company based on smart contract read values
   // for (let i = 0; i < 100; i++)
@@ -217,7 +225,7 @@ const mainFunction = async () =>
   //Hardcoded to a for loop of 3 for now
   const promises = [];
   
-  for (let i = 1; i <= 3; i++)
+  for (let i = 1; i <= companyData.length - 1; i++)
   {
     promises.push(createMetadata(i));
   }
@@ -235,6 +243,8 @@ const mainFunction = async () =>
 
   //Pinning the metadata to Pinata
   dataFolderCID = await pinMetaDataToPinata();
+
+  //Write here to a CSV file what the CID and ID (for example 202305) is
 
   //Setting the new CID of the metadata on the smart contract
   setTimeout(() => { updateCIDValueOnSmartContract(); }, 30000);
