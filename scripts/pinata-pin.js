@@ -16,7 +16,7 @@ const providerUrl = 'https://volta-rpc.energyweb.org';
 const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0x3322f96A883DedE06C295Cc6bB6BAB25c7aC2a9f' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0xE9C2C7d440Fe7d5516bCA32e60a5a3e81B8CB7ff' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -27,6 +27,7 @@ web3.eth.defaultAccount = account.address;
 let imgFolderCID = "";
 let dataFolderCID = "";
 let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
+let companyData = [];
 
 const pinImagesToPinata = async () =>
 {
@@ -101,7 +102,7 @@ const createMetadata = async (_id) => {
     image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
       {
-        energyEfficiency: "givenValue"
+        energyEfficiency: companyData[_id][1]
       }
     ]
   };
@@ -127,14 +128,18 @@ const createMetadata = async (_id) => {
 
 const readCSVFileAndRegisterOrUpdateCompanies = async () =>
 {
+  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
+  companyData.push([ 0, 0, "0x0" ]);
+
   const stream = fs.createReadStream('../CompanyInfo.csv')
     .pipe(csv());
 
   for await (const row of stream) {
     const { ID, Value, Address } = row;
+    companyData.push([ID, Value, Address]);
 
     await new Promise((resolve, reject) => {
-      EPChainContract.methods.updateOrRegisterCompany(ID, Value, Address).send({
+      EPChainContract.methods.registerCompany(ID, Address).send({
         from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
         gas: 3000000,
       })
@@ -241,3 +246,11 @@ const mainFunction = async () =>
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
 mainFunction();
+
+
+
+// function getHSL(uint id) public view returns (uint)
+// {
+//     //120 for the color. first 1 is for the formule and second 1 is to revert the outcome for example 0.1 should be 0.9
+//     return 120 * 1 - (1 - (companies[id].companyEnergyUsage / MAX_ENERGY_EFFICIENCY));
+// }
