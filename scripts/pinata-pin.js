@@ -16,7 +16,7 @@ const providerUrl = 'https://volta-rpc.energyweb.org';
 const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0x5ebEcAb5eE912D9f96f8DdfFe20e7b34AF7D1136' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x3322f96A883DedE06C295Cc6bB6BAB25c7aC2a9f' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -50,7 +50,7 @@ const pinImagesToPinata = async () =>
       },
     });
 
-    console.log('Pin image succeeded!'); // This logs the CID key
+    console.log('Pin image succeeded!', response.data.IpfsHash);
     return response.data.IpfsHash;
   } catch (error) {
     console.log('Pin image failed!', error);
@@ -81,7 +81,7 @@ const pinMetaDataToPinata = async () =>
       },
     });
 
-    console.log('Pin metadata succeeded!');
+    console.log('Pin metadata succeeded!', response.data.IpfsHash);
     return response.data.IpfsHash;
   } catch (error) {
     console.log('Pin metadata failed!', error);
@@ -93,8 +93,7 @@ const createImages = async (_id) =>
 
 }
 
-const createMetadata = async (_id) =>
-{
+const createMetadata = async (_id) => {
   // Define the metadata entries
   const metadata = {
     name: "companyName",
@@ -107,22 +106,24 @@ const createMetadata = async (_id) =>
     ]
   };
 
-
   // Convert the metadata object to a JSON string
   const metadataJson = JSON.stringify(metadata);
 
   // Define the file path and name
   const filePath = '../Data' + date + '/' + date + _id + '.json';
 
-  // Write the metadata JSON to a file
-  fs.writeFile(filePath, metadataJson, err => {
-    if (err) {
-      console.error("Metadata creation failed!");
-    } else {
-      console.log(`Metadata file created in ${filePath}!`);
-    }
+  return new Promise((resolve, reject) => {
+    // Write the metadata JSON to a file
+    fs.writeFile(filePath, metadataJson, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(`Metadata file created in ${filePath}!`);
+        resolve();
+      }
+    });
   });
-}
+};
 
 const readCSVFileAndRegisterOrUpdateCompanies = async () =>
 {
@@ -175,7 +176,9 @@ const updateCIDValueOnSmartContract = async () =>
 {
   return new Promise((resolve, reject) =>
   {
-    EPChainContract.methods.setBaseURL(dataFolderCID).send({
+    const IPFSURl = "https://gateway.pinata.cloud/ipfs/" + dataFolderCID;
+    console.log(IPFSURl);
+    EPChainContract.methods.setBaseURL(IPFSURl).send({
       from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
       gas: 3000000,
     })
@@ -206,23 +209,35 @@ const mainFunction = async () =>
   imgFolderCID = await pinImagesToPinata();
 
   //Creating metadata in the ../data for each company based on smart contract read values and created images
-  //Hardcoded to a for loop of 1 for now
-  for (let i = 1; i <= 3; i++) 
+  //Hardcoded to a for loop of 3 for now
+  const promises = [];
+  
+  for (let i = 1; i <= 3; i++)
   {
-    createMetadata(i);
+    promises.push(createMetadata(i));
+  }
+  
+  try
+  {
+    await Promise.all(promises);
+    console.log('All metadata files created!');
+    // Continue with the rest of your code here
+  } 
+  catch (error)
+  {
+    console.error('Metadata creation failed!', error);
   }
 
-  //Wait for 10 seconds before pinning the metadata to Pinata
-  dataFolderCID = await setTimeout(() => { pinMetaDataToPinata(); }, 8000);
+  //Pinning the metadata to Pinata
+  dataFolderCID = await pinMetaDataToPinata();
 
   //Setting the new CID of the metadata on the smart contract
-  setTimeout(() => { updateCIDValueOnSmartContract(); }, 15000);
+  setTimeout(() => { updateCIDValueOnSmartContract(); }, 30000);
 
   //Minting the NFT's for all registered companies
-  setTimeout(() => { mintNFTs(); }, 30000);
+  setTimeout(() => { mintNFTs(); }, 50000);
 }
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
 mainFunction();
-//Use PROMISE functionality everywhere where needed just like in readCSVFileAndRegisterOrUpdateCompanies() function
