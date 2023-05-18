@@ -4,6 +4,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const fs = require("fs");
 const csv = require('csv-parser');
 const FormData = require("form-data");
+const Jimp = require('jimp');
 const rfs = require("recursive-fs");
 const basePathConverter = require("base-path-converter");
 const axios = require('axios');
@@ -16,7 +17,8 @@ const providerUrl = 'https://volta-rpc.energyweb.org';
 const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0x63225FFaB6B5fF75835FA017470ECF0E7f30Bc60' //This has to be deployed smart contract address on the GOERLI testnet
+const { async } = require('recursive-fs/lib/copy');
+const contractAddress = '0x04ECE811cBf4E66992FDEbDd7dB079407d75F881' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -28,23 +30,27 @@ let imgFolderCID = "";
 let dataFolderCID = "";
 let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
 let companyData = [];
+let averageEfficiency = 0;
 
 const pinImagesToPinata = async () =>
 {
-  const url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
   const src = '../Images' + date;
 
-  try {
+  try
+  {
     const { dirs, files } = await rfs.read(src);
     let data = new FormData();
 
     for (const file of files) {
-      data.append('file', fs.createReadStream(file), {
-        filepath: basePathConverter(src, file),
+      if (file.endsWith('.png')) {
+        data.append('file', fs.createReadStream(file), {
+          filepath: basePathConverter(src, file),
       });
+      }
     }
 
-    const response = await axios.post(url, data, {
+    const response = await axios.post(pinataURL, data, {
       headers: {
         'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
         Authorization: JWT,
@@ -52,9 +58,9 @@ const pinImagesToPinata = async () =>
     });
 
     console.log('Pin image succeeded!', response.data.IpfsHash);
-    return response.data.IpfsHash;
+    imgFolderCID = response.data.IpfsHash;
   } catch (error) {
-    console.log('Pin image failed!', error);
+    console.log('Pin image failed!');
   }
 };
 
@@ -83,15 +89,49 @@ const pinMetaDataToPinata = async () =>
     });
 
     console.log('Pin metadata succeeded!', response.data.IpfsHash);
-    return response.data.IpfsHash;
+    dataFolderCID = response.data.IpfsHash;
   } catch (error) {
     console.log('Pin metadata failed!', error);
   }
 };
 
-const createImages = async (_id) =>
+const createImage = async (_id) =>
 {
-
+  const width = 100;
+  const height = 100;
+  const maxColor = 255;
+  //calculating colors
+  const yellowColor = 0.5;
+  const colorVariable = (companyData[_id][1] - averageEfficiency) / (2 * averageEfficiency) + yellowColor;
+  let red = Math.round(maxColor * colorVariable);
+  let green = Math.round(maxColor * (1 - colorVariable));
+  //clamping the colors between 0 and 255
+  red = Math.min(Math.max(red, 0), maxColor);
+  green = Math.min(Math.max(green, 0), maxColor);
+  
+  const image = new Jimp(width, height, (err, image) =>
+  {
+    if (err) throw err;
+  
+    image.background(0x00000000); // Set transparent background
+  
+    const color = Jimp.rgbaToInt(red, green, 0, maxColor);
+  
+    for (let x = 0; x < width; x++)
+    {
+      for (let y = 0; y < height; y++)
+      {
+        image.setPixelColor(color, x, y);
+      }
+    }
+  
+    const savePath = path.resolve('../Images' + date, date + _id + '.png');
+    image.write(savePath, (err) =>
+    {
+      if (err) throw err;
+      console.log(`Image created successfully at ${savePath}!`);
+    });
+  });
 }
 
 const createMetadata = async (_id) => {
@@ -105,7 +145,7 @@ const createMetadata = async (_id) => {
         energyEfficiency: companyData[_id][1],
         // energyGreen: Math.random() * 100,
         // energySharing: Math.random() * 100,
-        // averageEfficiency: Math.random() * 100,
+        averageEfficiency: averageEfficiency,
         // averageGreen: Math.random() * 100,
         // averageSharing: Math.random() * 100,
       }
@@ -163,6 +203,16 @@ const readCSVFileAndRegisterCompanies = async () =>
   console.log('CSV file processed');
 };
 
+const calculateAverageValues = async () =>
+{
+  let sum = 0;
+  for (let i = 1; i <= companyData.length - 1; i++)
+  {
+    sum += parseInt(companyData[i][1]);
+  }
+  averageEfficiency = sum / (companyData.length - 1)
+}
+
 const mintNFTs = async () =>
 {
   return new Promise((resolve, reject) =>
@@ -208,60 +258,62 @@ const updateCIDValueOnSmartContract = async () =>
 const mainFunction = async () =>
 {
   //Reading the CompanyInfo.csv file and registering/updating the companies to the smart contract
-  await readCSVFileAndRegisterCompanies();
-
+  await new Promise((resolve) => { readCSVFileAndRegisterCompanies().then(() => { resolve(); }); });
+  
   //Get the average scores (usage, shared, etc...)
-  //await calculateAverageValues();
+  await new Promise((resolve) => { calculateAverageValues().then(() => { resolve(); }); });
 
   //Creating images in the ../imgFolder for each company based on smart contract read values
-  // for (let i = 0; i < 100; i++)
-  // {
-  //   createImages();
-  // }
-
-  //Pinning the imgFolder to pinata IPFS
-  imgFolderCID = await pinImagesToPinata();
-
-  //Creating metadata in the ../data for each company based on smart contract read values and created images
-  //Hardcoded to a for loop of 3 for now
-  const promises = [];
+  const imagePromises = [];
   
   for (let i = 1; i <= companyData.length - 1; i++)
   {
-    promises.push(createMetadata(i));
+    imagePromises.push(createImage(i));
   }
   
   try
   {
-    await Promise.all(promises);
-    console.log('All metadata files created!');
-    // Continue with the rest of your code here
+    await Promise.all(imagePromises);
+    console.log('All images files created!');
+    
+    //Pinning the imgFolder to pinata IPFS
+    await new Promise((resolve) => { setTimeout(async () => { await pinImagesToPinata(); resolve(); }, 1000);});
+
+    //Creating metadata in the ../data for each company based on smart contract read values and created images
+    const metadataPromises = [];
+    
+    for (let i = 1; i <= companyData.length - 1; i++)
+    {
+      metadataPromises.push(createMetadata(i));
+    }
+    
+    try
+    {
+      await Promise.all(metadataPromises);
+      console.log('All metadata files created!');
+
+      //Pinning the metadata to Pinata
+      await new Promise((resolve) => { setTimeout(async () => { await pinMetaDataToPinata(); resolve(); }, 1000);});
+
+      //Write here to a CSV file what the CID and ID (for example 202305) is//maybe not needed, we can track each individuals metadata using their nft that can be tracked from smart contract
+    
+      //Setting the new CID of the metadata on the smart contract
+      await new Promise((resolve) => { setTimeout(async () => { await updateCIDValueOnSmartContract(); resolve(); }, 3000);});
+    
+      //Minting the NFT's for all registered companies
+      await new Promise((resolve) => { setTimeout(async () => { await mintNFTs(); resolve(); }, 10000);});
+    } 
+    catch (error)
+    {
+      console.error('Metadata creation failed!', error);
+    }
   } 
   catch (error)
   {
-    console.error('Metadata creation failed!', error);
+    console.error('Image creation failed!', error);
   }
-
-  //Pinning the metadata to Pinata
-  dataFolderCID = await pinMetaDataToPinata();
-
-  //Write here to a CSV file what the CID and ID (for example 202305) is
-
-  //Setting the new CID of the metadata on the smart contract
-  setTimeout(() => { updateCIDValueOnSmartContract(); }, 30000);
-
-  //Minting the NFT's for all registered companies
-  setTimeout(() => { mintNFTs(); }, 50000);
 }
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
 mainFunction();
-
-
-
-// function getHSL(uint id) public view returns (uint)
-// {
-//     //120 for the color. first 1 is for the formule and second 1 is to revert the outcome for example 0.1 should be 0.9
-//     return 120 * 1 - (1 - (companies[id].companyEnergyUsage / MAX_ENERGY_EFFICIENCY));
-// }
