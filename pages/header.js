@@ -43,6 +43,7 @@ export function Header() {
                 <a href="/"><button>Dashboard</button></a>
                 <a href="/about"><button>About us</button></a>
                 <a href="/faq"><button>FAQ</button></a>
+                <a href="/register"><button>Register</button></a>
             </div>
         </div>
     );

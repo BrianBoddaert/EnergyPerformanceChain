@@ -126,19 +126,20 @@ async function GetJsonFromURL(url)
 
 }
 
-async function MetaMaskButtonClicked()
+export async function MetaMaskButtonClicked()
 {
-    const metaMaskButton = document.getElementById('metamaskbutton');
-    if (!window.ethereum)
-    {
-      metaMaskButton.innerText = 'No access to MetaMask in your browser';
-      return false;
-    }
-    else
-    {
-      const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-
-    }
+    console.log("Connecting with MetaMask...");
+    // const metaMaskButton = document.getElementById('metamaskbutton');
+    // if (!window.ethereum)
+    // {
+    //   metaMaskButton.innerText = 'No access to MetaMask in your browser';
+    //   return false;
+    // }
+    // else
+    // {
+    //   const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+    // }
 }
 
-export default GetAllJsonsInFolder
+//export default MetaMaskButtonClicked;
+export default GetAllJsonsInFolder;
