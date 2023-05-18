@@ -11,7 +11,6 @@ contract EPChain is ERC721, Ownable
     struct Company
     {
         address companyAddress;
-        uint companyEnergyUsage;
         uint mintedCount;
     }
 
@@ -52,22 +51,14 @@ contract EPChain is ERC721, Ownable
     }
 
     //Updating or registering a company and their data, currently only energyUsage but can be a struct containing all the other data
-    function updateOrRegisterCompany(uint id, uint energyUsage, address companyAddress) public onlyOwner
+    function registerCompany(uint id, address companyAddress) public onlyOwner
     {
-        //If companyEnergyUsage is 0 it means we are registering a company so we can increment the count
+        //If companyAddress is 0 it means we are registering a company so we can increment the count
         if (companies[id].companyAddress == address(0x0)) //check if it works!!!
         {
             ++amountOfCompanies;
             companies[id].companyAddress = companyAddress;
         }
-        companies[id].companyEnergyUsage = energyUsage;
-    }
-
-    //converts the usage to a color with range RED-GREEN
-    function getHSL(uint id) public view returns (uint)
-    {
-        //120 for the color. first 1 is for the formule and second 1 is to revert the outcome for example 0.1 should be 0.9
-        return 120 * 1 - (1 - (companies[id].companyEnergyUsage / MAX_ENERGY_EFFICIENCY));
     }
 
     //Uses the token Id that we assign to it when minted to bind the NFT to the correct metadata in the _baseURI CID folder on IPFS

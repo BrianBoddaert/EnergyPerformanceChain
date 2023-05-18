@@ -11,10 +11,12 @@ const axios = require('axios');
 const JWT = process.env.JWT
 //Web3 details
 const Web3 = require('web3');
-const web3 = new Web3(process.env.INFURA_URL);
+//Using volta testnet
+const providerUrl = 'https://volta-rpc.energyweb.org';
+const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
-const contractAddress = '0xfa21357c651a671477b6a43426FF78ca23C71DdE' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x63225FFaB6B5fF75835FA017470ECF0E7f30Bc60' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -25,6 +27,7 @@ web3.eth.defaultAccount = account.address;
 let imgFolderCID = "";
 let dataFolderCID = "";
 let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
+let companyData = [];
 
 const pinImagesToPinata = async () =>
 {
@@ -48,7 +51,7 @@ const pinImagesToPinata = async () =>
       },
     });
 
-    console.log('Pin image succeeded!'); // This logs the CID key
+    console.log('Pin image succeeded!', response.data.IpfsHash);
     return response.data.IpfsHash;
   } catch (error) {
     console.log('Pin image failed!', error);
@@ -79,7 +82,7 @@ const pinMetaDataToPinata = async () =>
       },
     });
 
-    console.log('Pin metadata succeeded!');
+    console.log('Pin metadata succeeded!', response.data.IpfsHash);
     return response.data.IpfsHash;
   } catch (error) {
     console.log('Pin metadata failed!', error);
@@ -91,8 +94,7 @@ const createImages = async (_id) =>
 
 }
 
-const createMetadata = async (_id) =>
-{
+const createMetadata = async (_id) => {
   // Define the metadata entries
   const metadata = {
     name: "companyName",
@@ -100,11 +102,15 @@ const createMetadata = async (_id) =>
     image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
       {
-        energyEfficiency: "givenValue"
+        energyEfficiency: companyData[_id][1],
+        // energyGreen: Math.random() * 100,
+        // energySharing: Math.random() * 100,
+        // averageEfficiency: Math.random() * 100,
+        // averageGreen: Math.random() * 100,
+        // averageSharing: Math.random() * 100,
       }
     ]
   };
-
 
   // Convert the metadata object to a JSON string
   const metadataJson = JSON.stringify(metadata);
@@ -112,26 +118,34 @@ const createMetadata = async (_id) =>
   // Define the file path and name
   const filePath = '../Data' + date + '/' + date + _id + '.json';
 
-  // Write the metadata JSON to a file
-  fs.writeFile(filePath, metadataJson, err => {
-    if (err) {
-      console.error("Metadata creation failed!");
-    } else {
-      console.log(`Metadata file created in ${filePath}!`);
-    }
+  return new Promise((resolve, reject) => {
+    // Write the metadata JSON to a file
+    fs.writeFile(filePath, metadataJson, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(`Metadata file created in ${filePath}!`);
+        resolve();
+      }
+    });
   });
-}
+};
 
-const readCSVFileAndRegisterOrUpdateCompanies = async () =>
+const readCSVFileAndRegisterCompanies = async () =>
 {
+  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
+  companyData.length = 0;
+  companyData.push([ 0, 0, "0x0" ]);
+
   const stream = fs.createReadStream('../CompanyInfo.csv')
     .pipe(csv());
 
   for await (const row of stream) {
     const { ID, Value, Address } = row;
+    companyData.push([ID, Value, Address]);
 
     await new Promise((resolve, reject) => {
-      EPChainContract.methods.updateOrRegisterCompany(ID, Value, Address).send({
+      EPChainContract.methods.registerCompany(ID, Address).send({
         from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
         gas: 3000000,
       })
@@ -173,7 +187,9 @@ const updateCIDValueOnSmartContract = async () =>
 {
   return new Promise((resolve, reject) =>
   {
-    EPChainContract.methods.setBaseURL(dataFolderCID).send({
+    const IPFSURl = "https://gateway.pinata.cloud/ipfs/" + dataFolderCID;
+    console.log(IPFSURl);
+    EPChainContract.methods.setBaseURL(IPFSURl).send({
       from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
       gas: 3000000,
     })
@@ -192,7 +208,10 @@ const updateCIDValueOnSmartContract = async () =>
 const mainFunction = async () =>
 {
   //Reading the CompanyInfo.csv file and registering/updating the companies to the smart contract
-  await readCSVFileAndRegisterOrUpdateCompanies();
+  await readCSVFileAndRegisterCompanies();
+
+  //Get the average scores (usage, shared, etc...)
+  //await calculateAverageValues();
 
   //Creating images in the ../imgFolder for each company based on smart contract read values
   // for (let i = 0; i < 100; i++)
@@ -204,23 +223,45 @@ const mainFunction = async () =>
   imgFolderCID = await pinImagesToPinata();
 
   //Creating metadata in the ../data for each company based on smart contract read values and created images
-  //Hardcoded to a for loop of 1 for now
-  for (let i = 1; i <= 3; i++) 
+  //Hardcoded to a for loop of 3 for now
+  const promises = [];
+  
+  for (let i = 1; i <= companyData.length - 1; i++)
   {
-    createMetadata(i);
+    promises.push(createMetadata(i));
+  }
+  
+  try
+  {
+    await Promise.all(promises);
+    console.log('All metadata files created!');
+    // Continue with the rest of your code here
+  } 
+  catch (error)
+  {
+    console.error('Metadata creation failed!', error);
   }
 
-  //Wait for 10 seconds before pinning the metadata to Pinata
-  dataFolderCID = await setTimeout(() => { pinMetaDataToPinata(); }, 8000);
+  //Pinning the metadata to Pinata
+  dataFolderCID = await pinMetaDataToPinata();
+
+  //Write here to a CSV file what the CID and ID (for example 202305) is
 
   //Setting the new CID of the metadata on the smart contract
-  setTimeout(() => { updateCIDValueOnSmartContract(); }, 15000);
+  setTimeout(() => { updateCIDValueOnSmartContract(); }, 30000);
 
   //Minting the NFT's for all registered companies
-  setTimeout(() => { mintNFTs(); }, 30000);
+  setTimeout(() => { mintNFTs(); }, 50000);
 }
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
 mainFunction();
-//Use PROMISE functionality everywhere where needed just like in readCSVFileAndRegisterOrUpdateCompanies() function
+
+
+
+// function getHSL(uint id) public view returns (uint)
+// {
+//     //120 for the color. first 1 is for the formule and second 1 is to revert the outcome for example 0.1 should be 0.9
+//     return 120 * 1 - (1 - (companies[id].companyEnergyUsage / MAX_ENERGY_EFFICIENCY));
+// }
