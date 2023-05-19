@@ -101,8 +101,8 @@ const createImage = async (_id) =>
   const height = 100;
   const maxColor = 255;
   //calculating colors
-  const yellowColor = 0.5;
-  const colorVariable = (companyData[_id][1] - averageEfficiency) / (2 * averageEfficiency) + yellowColor;
+  const midRange = 0.5;
+  const colorVariable = (companyData[_id][1] - averageEfficiency) / (2 * averageEfficiency) + midRange;
   let red = Math.round(maxColor * colorVariable);
   let green = Math.round(maxColor * (1 - colorVariable));
   //clamping the colors between 0 and 255
