@@ -33,7 +33,7 @@ contract EPChain is ERC721, Ownable
     //Temporary var 
     uint MAX_ENERGY_EFFICIENCY = 100;
     
-    string private _baseURL = "https://gateway.pinata.cloud/ipfs/QmdpvArQjD5Dpfp9e3YNqAnfaA8Ccx5oX8ydNeyUNtpM9E";
+    string private _baseURL = "";
 
     constructor() ERC721("EPChain", "EPC")
     {}

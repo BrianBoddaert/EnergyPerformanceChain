@@ -18,7 +18,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x04ECE811cBf4E66992FDEbDd7dB079407d75F881' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x7Ce315e5B33E81a7f852ed9aFdfC00788cC17e18' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -237,7 +237,7 @@ const updateCIDValueOnSmartContract = async () =>
 {
   return new Promise((resolve, reject) =>
   {
-    const IPFSURl = "https://gateway.pinata.cloud/ipfs/" + dataFolderCID;
+    const IPFSURl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + dataFolderCID;
     console.log(IPFSURl);
     EPChainContract.methods.setBaseURL(IPFSURl).send({
       from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
