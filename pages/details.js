@@ -8,11 +8,16 @@ import stylesDetails from '../styles/Details.module.css';
 
 
 function Detail({ companyData }) {
-  const [data] = useState([]);
+  const [selectedChart, setSelectedChart] = useState("consumption");
   const graphRefs = useRef([]);
   const chartInstances = useRef([]);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+
+    const company = queryParams.get('company');
+    document.getElementById('companyname').textContent = company;
+
     const destroyChartInstances = () => {
       chartInstances.current.forEach((chart) => {
         chart.destroy();
@@ -21,59 +26,90 @@ function Detail({ companyData }) {
     };
 
     destroyChartInstances();
+    const consumptionString = queryParams.get('consumption');
+    const consumption = consumptionString.split(',').map(Number);
 
-    graphRefs.current.forEach((ref, index) => {
-      const data = generateRandomData();
-      const ctx = ref.getContext('2d');
-      if (ctx) {
-        const chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: ['1', '2', '3', '4', '5'],
-            datasets: [
-              {
-                data: data,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(250, 0, 0, 1)',
-                borderWidth: 2,
-                pointRadius: 0,
-                tension: 0.4
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: {
-                display: true
-              },
-              y: {
-                display: true
-              }
+    console.log("consumption " + consumption);
+
+    const greenString = queryParams.get('green');
+    const green = greenString.split(',').map(Number);
+
+    console.log("green " + green);
+
+    const sharingString = queryParams.get('sharing');
+    const sharing = sharingString.split(',').map(Number);
+
+    console.log("sharing " + sharing);
+
+    const generateChart = (chartData) => {
+      graphRefs.current.forEach((ref, index) => {
+        const ctx = ref.getContext('2d');
+        if (ctx) {
+          const step = Math.ceil(chartData.length / 5);
+    
+          const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: chartData.map((_, i) => (i % step === 0 ? (i + 1).toString() : '')),
+              datasets: [
+                {
+                  data: chartData,
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  borderColor: 'rgba(250, 0, 0, 1)',
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.4
+                }
+              ]
             },
-            plugins: {
-              legend: {
-                display: false
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  display: true
+                },
+                y: {
+                  display: true
+                }
+              },
+              plugins: {
+                legend: {
+                  display: false
+                }
               }
             }
-          }
-        });
+          });
+    
+          chartInstances.current.push(chart);
+        }
+      });
+    };
+    
+    // Generate the chart based on the selected chart type
+    let data = [];
+    if (selectedChart === "consumption") {
+      data = Array.isArray(consumption) ? consumption : [];
+    } else if (selectedChart === "green") {
+      data = Array.isArray(green) ? green : [];
+    } else if (selectedChart === "sharing") {
+      data = Array.isArray(sharing) ? sharing : [];
+    }
+    generateChart(data);
+  }, [selectedChart]);
 
-        chartInstances.current.push(chart);
-      }
-    });
-  }, [data]);
-
-  const generateRandomData = () => {
-    return Array.from({ length: 5 }, () => Math.random() * 10);
+  const selectNewChart = (chart) => {
+    setSelectedChart(chart);
+    document.getElementById('consumption').className = chart == 'consumption' ? '{`${stylesDetails.selectedButton}`}' : '{`${stylesDetails.nonSelectedButton}`}';
+    document.getElementById('green').className = chart == 'green' ? 'selectedButton' : 'nonSelectedButton';
+    document.getElementById('sharing').className = chart == 'sharing' ? 'selectedButton' : 'nonSelectedButton';
   };
 
   return (
     <div className={`Container ${styles.Container}`}>
       {/* HEADER */}
       <Header />
-      <h2>{companyData.company}</h2>
+      <h2 id='companyname'></h2>
 
       {/* DESCRIPTION */}
       <div className={`Container ${stylesDetails.Description}`}>
@@ -105,10 +141,9 @@ function Detail({ companyData }) {
       <div className={`Container ${stylesDetails.ProgressChart}`}>
         <h4>Progress chart</h4>
         <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
-        <button className={`${stylesDetails.selectedButton}`}>Overall</button>
-        <button>Consumption</button>
-        <button>Green</button>
-        <button>Sharing</button>
+        <button classname='{`${stylesDetails.selectedButton}' id='consumption' onClick={() => selectNewChart("consumption")}>Consumption</button>
+        <button id='green' onClick={() => selectNewChart("green")}>Green</button>
+        <button id='sharing' onClick={() => selectNewChart("sharing")}>Sharing</button>
       </div>
 
 

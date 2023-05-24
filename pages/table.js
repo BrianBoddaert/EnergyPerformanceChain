@@ -13,15 +13,24 @@ export function Table({nftJsons }) {
 
   useEffect(() => {
     // Define the data for the table
+    console.log("json: ");
+
+    if (nftJsons && nftJsons.attributes && nftJsons.attributes.length > 0) {
+      console.log(nftJsons.attributes[0].energyEfficiency);
+    }
     if (nftJsons) 
     {
       const tableData = nftJsons.map((json) => ({
       company: json.name,
+      description: json.description,
       token: json.image,
-      overall: json.overall,
-      consumption: json.consumption,
-      green: json.green,
-      sharing: json.sharing
+      overall: json.attributes[0].energyEfficiency,
+      energyGreen: json.attributes[0].energyGreen,
+      energySharing: json.attributes[0].energySharing,
+      energyEfficiency: json.attributes[0].energyEfficiency,
+      averageEfficiency: json.attributes[0].averageEfficiency,
+      averageGreen: json.attributes[0].averageGreen,
+      averageSharing: json.attributes[0].averageSharing
     }));
     setData(tableData);
   } 
@@ -76,11 +85,11 @@ export function Table({nftJsons }) {
     if (sortColumn === 'company') {
       return direction * a.company.localeCompare(b.company);
     } else if (sortColumn === 'consumption') {
-      return String(a.consumption).localeCompare(String(b.consumption));
+      return String(a.energyEfficiency).localeCompare(String(b.energyEfficiency));
     } else if (sortColumn === 'green') {
-      return String(b.green).localeCompare(String(a.green));
+      return String(b.energyGreen).localeCompare(String(a.energyGreen));
     } else if (sortColumn === 'sharing') {
-      return String(b.sharing).localeCompare(String(a.sharing));
+      return String(b.energySharing).localeCompare(String(a.energySharing));
     } else if (sortColumn === 'overall') {
       return String(b.overall).localeCompare(String(a.overall));
     } else {
@@ -119,10 +128,20 @@ export function Table({nftJsons }) {
     return Array.from({ length: 5 }, () => Math.random() * 10);
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (data) => {
     // Send data to the new page
     const descr = 'Google LLC is an American multinational technology company focusing on online advertising, search engine technology, cloud computing, computer software, quantum computing, e-commerce, artificial intelligence, and consumer electronics.';
-    const dataToSend = { company: 'Google Inc.', description: descr, consumption: 100,  green: 30, sharing: 70};
+    const consm = Array.from({ length: 5 }, () => data.energyEfficiency + Math.random() * 3);
+    const grn = Array.from({ length: 5 }, () => data.energyGreen + Math.random() * 3);
+    const shr = Array.from({ length: 5 }, () => data.energySharing + Math.random() * 3);
+    
+    const dataToSend = { 
+      company: data.company, 
+      description: descr, 
+      consumption: consm,  
+      green: grn, 
+      sharing: shr
+    };
     // Use URL query parameters to pass the data
     const queryParams = new URLSearchParams(dataToSend).toString();
     // Navigate to the new page with the data
@@ -137,9 +156,9 @@ export function Table({nftJsons }) {
         <th className={`${styles.filter} ${selectedColumn === 'specific' ? styles.selected : ''}`} onClick={() => forceSelectChange('overall')}>
           <select value={selectedOption} onChange={handleSelectChange}>
             <option value="overall">Overall</option>
-            <option value="consumption">Consumption</option>
-            <option value="green">Green</option>
-            <option value="sharing">Sharing</option>
+            <option value="energyEfficiency">Consumption</option>
+            <option value="energyGreen">Green</option>
+            <option value="energySharing">Sharing</option>
           </select>
         </th>
         <th className={`${styles.companyHead} ${styles.filter} ${selectedColumn === 'company' ? styles.selected : ''}`} onClick={() => handleSortColumnClick('company')}>Company name</th>
@@ -152,7 +171,7 @@ export function Table({nftJsons }) {
         <tr key={index} className={`${index % 2 === 0 ? styles.rowEven : styles.rowOdd}`}>
           <td>#{index + 1}</td>
           <td className={`rounded-box ${styles.td}`}>{item[selectedOption]}</td>
-          <td className={`rounded-box ${styles.td} ${styles.makeClicky}`} onClick={() => handleButtonClick()}>{item.company}</td>
+          <td className={`rounded-box ${styles.td} ${styles.makeClicky}`} onClick={() => handleButtonClick(item)}>{item.company}</td>
           <td className={`rounded-box ${styles.td}`}>
             <img src={item.token} alt={item.company} />
           </td>
