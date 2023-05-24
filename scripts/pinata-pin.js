@@ -8,6 +8,7 @@ const Jimp = require('jimp');
 const rfs = require("recursive-fs");
 const basePathConverter = require("base-path-converter");
 const axios = require('axios');
+const sharp = require('sharp');
 //Pinata details
 const JWT = process.env.JWT
 //Web3 details
@@ -18,7 +19,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x7Ce315e5B33E81a7f852ed9aFdfC00788cC17e18' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x3C8F63Ef7C4E815352C6a1121DA044d877c0E778' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -30,7 +31,9 @@ let imgFolderCID = "";
 let dataFolderCID = "";
 let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
 let companyData = [];
-let averageEfficiency = 0;
+let averageUsage = 0;
+let averageGreen = 0;
+let averageSharing = 0;
 
 const pinImagesToPinata = async () =>
 {
@@ -97,41 +100,74 @@ const pinMetaDataToPinata = async () =>
 
 const createImage = async (_id) =>
 {
-  const width = 100;
-  const height = 100;
-  const maxColor = 255;
-  //calculating colors
   const midRange = 0.5;
-  const colorVariable = (companyData[_id][1] - averageEfficiency) / (2 * averageEfficiency) + midRange;
-  let red = Math.round(maxColor * colorVariable);
-  let green = Math.round(maxColor * (1 - colorVariable));
-  //clamping the colors between 0 and 255
-  red = Math.min(Math.max(red, 0), maxColor);
-  green = Math.min(Math.max(green, 0), maxColor);
+  const colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
+  const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
+  const colorVariable3 = 1 - ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
   
-  const image = new Jimp(width, height, (err, image) =>
-  {
-    if (err) throw err;
-  
-    image.background(0x00000000); // Set transparent background
-  
-    const color = Jimp.rgbaToInt(red, green, 0, maxColor);
-  
-    for (let x = 0; x < width; x++)
-    {
-      for (let y = 0; y < height; y++)
-      {
-        image.setPixelColor(color, x, y);
-      }
+  const imageSize = 200; // Size of the image in pixels
+  const radius = imageSize / 2;
+  const anglePerPart = (2 * Math.PI) / 3;
+
+  // Calculate the start and end angles for each part
+  const startAngle1 = 0;
+  const endAngle1 = anglePerPart;
+  const startAngle2 = anglePerPart;
+  const endAngle2 = 2 * anglePerPart;
+  const startAngle3 = 2 * anglePerPart;
+  const endAngle3 = 2 * Math.PI;
+
+  // Calculate the RGB color values based on the input values
+  const color1 = `rgb(${Math.round((1 - colorVariable1) * 255)}, ${Math.round(colorVariable1 * 255)}, 0)`;
+  const color2 = `rgb(${Math.round((1 - colorVariable2) * 255)}, ${Math.round(colorVariable2 * 255)}, 0)`;
+  const color3 = `rgb(${Math.round((1 - colorVariable3) * 255)}, ${Math.round(colorVariable3 * 255)}, 0)`;
+
+  // Create a new blank image with a white background
+  const image = sharp({
+    create: {
+      width: imageSize,
+      height: imageSize,
+      channels: 3,
+      background: { r: 255, g: 255, b: 255 }
     }
-  
-    const savePath = path.resolve('../Images' + date, date + _id + '.png');
-    image.write(savePath, (err) =>
-    {
-      if (err) throw err;
-      console.log(`Image created successfully at ${savePath}!`);
-    });
   });
+
+  // Draw each part of the circle with the corresponding color
+  image
+    .composite([
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color1}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color2}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color3}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      }
+    ])
+    .png();
+
+  // Save the image to a file
+  const outputPath = path.join(__dirname, '../Images' + date, date + _id + '.png');
+  await image.toFile(outputPath); 
 }
 
 const createMetadata = async (_id) => {
@@ -142,12 +178,12 @@ const createMetadata = async (_id) => {
     image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
       {
-        energyEfficiency: companyData[_id][1],
-        // energyGreen: Math.random() * 100,
-        // energySharing: Math.random() * 100,
-        averageEfficiency: averageEfficiency,
-        // averageGreen: Math.random() * 100,
-        // averageSharing: Math.random() * 100,
+        EnergyUsage: companyData[_id][1],
+        EnergyGreen: companyData[_id][2],
+        EnergySharing: companyData[_id][3],
+        AverageUsage: averageUsage.toFixed(2),
+        AverageGreen: averageGreen.toFixed(2),
+        AverageSharing: averageSharing.toFixed(2),
       }
     ]
   };
@@ -181,12 +217,12 @@ const readCSVFileAndRegisterCompanies = async () =>
     .pipe(csv());
 
   for await (const row of stream) {
-    const { ID, Value, Address } = row;
-    companyData.push([ID, Value, Address]);
+    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
+    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
 
     await new Promise((resolve, reject) => {
       EPChainContract.methods.registerCompany(ID, Address).send({
-        from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+        from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
         gas: 3000000,
       })
       .on('receipt', (receipt) => {
@@ -205,12 +241,19 @@ const readCSVFileAndRegisterCompanies = async () =>
 
 const calculateAverageValues = async () =>
 {
-  let sum = 0;
+  let usageSum = 0;
+  let greenSum = 0;
+  let sharingSum = 0;
   for (let i = 1; i <= companyData.length - 1; i++)
   {
-    sum += parseInt(companyData[i][1]);
+    usageSum += parseInt(companyData[i][1]);
+    greenSum += parseInt(companyData[i][2]);
+    sharingSum += parseInt(companyData[i][3]);
   }
-  averageEfficiency = sum / (companyData.length - 1)
+  averageUsage = usageSum / (companyData.length - 1)
+  averageGreen = greenSum / (companyData.length - 1)
+  averageSharing = sharingSum / (companyData.length - 1)
+
 }
 
 const mintNFTs = async () =>
@@ -218,7 +261,7 @@ const mintNFTs = async () =>
   return new Promise((resolve, reject) =>
   {
     EPChainContract.methods.mintForRegisteredCompanies(date).send({
-      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+      from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
       gas: 4000000,
       gasPrice: '5000000000',
     })
@@ -240,7 +283,7 @@ const updateCIDValueOnSmartContract = async () =>
     const IPFSURl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + dataFolderCID;
     console.log(IPFSURl);
     EPChainContract.methods.setBaseURL(IPFSURl).send({
-      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+      from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
       gas: 3000000,
     })
       .on('receipt', (receipt) => {
