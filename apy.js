@@ -8,6 +8,11 @@ const port = 5000;
 
 app.use(upload());
 
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
 app.get('/register', (req,res) => {
   res.sendFile(__dirname + '/register')
 })
@@ -18,10 +23,6 @@ app.post('/register',(req,res) => {
   console.log(req.cname)
   }
 })
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
 
 
 //const provider = process.env.INFURA_URL;
