@@ -2,8 +2,6 @@ import {React, useState, useEffect, useRef} from 'react';
 import { Header } from './header.js';
 import Chart from 'chart.js/auto';
 
-
-import styles from '../styles/Main.module.css';
 import stylesDetails from '../styles/Details.module.css';
 
 
@@ -106,47 +104,48 @@ function Detail({ companyData }) {
   };
 
   return (
-    <div className={`${styles.Container}`}>
+    <div className={`${stylesDetails.Container}`}>
       {/* HEADER */}
       <Header />
-      <h2 id='companyname'></h2>
+      <div className={`${stylesDetails.Content}`}>
+        <h2 id='companyname'></h2>
 
-      {/* DESCRIPTION */}
-      <div className={`${stylesDetails.Description}`}>
-        <p>{companyData.description}</p>
-      </div>
-
-      {/* NFT LIST */}
-      <h4>EPCoins</h4>
-      <div className={`${stylesDetails.Progressbar}`}>
-        <div className={`${stylesDetails.ProgressbarItem}`}>
-          <img src='../images/Icon.png'></img>
-          <p>02-16-2023</p>
+        {/* DESCRIPTION */}
+        <div className={`${stylesDetails.Description}`}>
+          <p>{companyData.description}</p>
         </div>
-        <div className={`${stylesDetails.ProgressbarItem}`}>
-          <img src='../images/Icon.png'></img>
-          <p>03-16-2023</p>
+
+        {/* NFT LIST */}
+        <h4>EPCoins</h4>
+        <div className={`${stylesDetails.Progressbar}`}>
+          <div className={`${stylesDetails.ProgressbarItem}`}>
+            <img src='../images/Icon.png'></img>
+            <p>02-16-2023</p>
+          </div>
+          <div className={`${stylesDetails.ProgressbarItem}`}>
+            <img src='../images/Icon.png'></img>
+            <p>03-16-2023</p>
+          </div>
+          <div className={`${stylesDetails.ProgressbarItem}`}>
+            <img src='../images/Icon.png'></img>
+            <p>04-16-2023</p>
+          </div>        
+          <div className={`${stylesDetails.ProgressbarItem}`}>
+            <img src='../images/Icon.png'></img>
+            <p>05-16-2023</p>
+          </div>
         </div>
-        <div className={`${stylesDetails.ProgressbarItem}`}>
-          <img src='../images/Icon.png'></img>
-          <p>04-16-2023</p>
-        </div>        
-        <div className={`${stylesDetails.ProgressbarItem}`}>
-          <img src='../images/Icon.png'></img>
-          <p>05-16-2023</p>
+
+        {/* PROGRESS GRAPH */}  
+        <div className={`${stylesDetails.ProgressChart}`}>
+          <h4>Progress chart</h4>
+          <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
+          <button classname='{`${stylesDetails.selectedButton}' id='consumption' onClick={() => selectNewChart("consumption")}>Consumption</button>
+          <button id='green' onClick={() => selectNewChart("green")}>Green</button>
+          <button id='sharing' onClick={() => selectNewChart("sharing")}>Sharing</button>
         </div>
+
       </div>
-
-      {/* PROGRESS GRAPH */}  
-      <div className={`${stylesDetails.ProgressChart}`}>
-        <h4>Progress chart</h4>
-        <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
-        <button classname='{`${stylesDetails.selectedButton}' id='consumption' onClick={() => selectNewChart("consumption")}>Consumption</button>
-        <button id='green' onClick={() => selectNewChart("green")}>Green</button>
-        <button id='sharing' onClick={() => selectNewChart("sharing")}>Sharing</button>
-      </div>
-
-
     </div>
   );
 }

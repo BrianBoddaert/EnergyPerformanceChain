@@ -24,13 +24,13 @@ export function Table({nftJsons }) {
       company: json.name,
       description: json.description,
       token: json.image,
-      overall: json.attributes[0].energyEfficiency,
-      energyGreen: json.attributes[0].energyGreen,
-      energySharing: json.attributes[0].energySharing,
-      energyEfficiency: json.attributes[0].energyEfficiency,
-      averageEfficiency: json.attributes[0].averageEfficiency,
-      averageGreen: json.attributes[0].averageGreen,
-      averageSharing: json.attributes[0].averageSharing
+      overall: json.attributes[0].EnergyUsage,
+      energyGreen: json.attributes[0].EnergyGreen,
+      energySharing: json.attributes[0].EnergySharing,
+      energyEfficiency: json.attributes[0].EnergyUsage,
+      averageEfficiency: json.attributes[0].AverageSharing,
+      averageGreen: json.attributes[0].AverageGreen,
+      averageSharing: json.attributes[0].AverageUsage
     }));
     setData(tableData);
   } 

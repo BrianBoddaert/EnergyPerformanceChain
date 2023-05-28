@@ -1,3 +1,16 @@
+.Container {
+}
+
+.Content{
+  margin: 0 auto;
+  margin-top: 100px;
+  width: 60%;
+}
+
+.Content h4{
+  margin-top: 40px;
+}
+
 .Description{
   background-color: rgb(232, 232, 222);
   width: 700px;
@@ -38,6 +51,13 @@
 }
 
 .ProgressChart button{
+  margin: 5px;
+  border: 2px solid rgb(92, 156, 102);
+  background-color: rgb(100, 167, 111);
+  border-radius: 3px;
+}
+
+.nonSelectedButton{
   margin: 5px;
   border: 2px solid rgb(92, 156, 102);
   background-color: rgb(100, 167, 111);

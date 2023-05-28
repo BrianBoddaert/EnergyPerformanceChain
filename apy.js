@@ -2,6 +2,8 @@ import fetch from "node-fetch";
 
 //import express from '../node_modules/express/lib/express.js';
 const express = require('express');
+const fs = require("fs");
+const csv = require('csv-parser');
 const app = express();
 const upload = require('express-fileupload');
 const port = 5000;
@@ -32,21 +34,42 @@ const https = require('https');
 
 //const LoadedMetadata = new Map();
 
-async function LoadMetaData()
+const CIDdata = [];
+
+const readCSVFile = async () =>
+{
+  CIDdata.length = 0;
+
+  const stream = fs.createReadStream('CIDs.csv')
+    .pipe(csv());
+
+  for await (const row of stream) {
+    const {Date, CID} = row;
+    CIDdata.push([Date, CID]);
+  }
+
+  console.log('CSV file processed');
+};
+
+async function LoadLatestMetaData()
 {
   var Result = [];
   const JsonsPerPageLimit = 30;
   const year = 2023;
   const month = '05';
 
-  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmYyJMvcBfyqACKaeN5SC6UF9bs4zEWc4SD19MHCK1z1eh/"; //1.json
+  //https://gateway.pinata.cloud/ipfs/QmYyJMvcBfyqACKaeN5SC6UF9bs4zEWc4SD19MHCK1z1eh/
+  // "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CID + '/' + date + _id + '.json'
+
+  const len = CIDdata.length - 1;
+  const baseUrl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CIDdata[len][1] + '/' + CIDdata[len][0];
 
   console.log("Started pulling Jsons from IPFS...");
 
   for (let i = 0; i < JsonsPerPageLimit; i++)
   {
     console.log("checking iteration " + i);
-    let url = baseUrl + `/` + year + month + `${i+1}.json`;
+    let url = baseUrl + `${i+1}.json`;
 
     const JsonWithImage = await isJsonWithImage(url);
     if (!JsonWithImage[0])
@@ -65,7 +88,9 @@ async function LoadMetaData()
 
 async function GetAllJsonsInFolder()
 {
-  return LoadMetaData();
+  await new Promise((resolve) => { readCSVFile().then(() => { resolve(); }); });
+
+  return LoadLatestMetaData();
 }
 
 async function isJsonWithImage(url) 
