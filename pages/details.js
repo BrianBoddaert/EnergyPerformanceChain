@@ -2,8 +2,33 @@ import {React, useState, useEffect, useRef} from 'react';
 import { Header } from './header.js';
 import Chart from 'chart.js/auto';
 
-import stylesDetails from '../styles/Details.module.css';
 
+import stylesDetails from '../styles/Details.module.css';
+//import test from '../apy.js';  
+
+
+let allMetaData = [];
+
+// const readCSVFile = async (companyname) =>
+// {
+//   let companyID = -1;
+
+//   for await (const data of companyData) {
+//     if (data[1] == companyname)
+//     {
+//       companyID = data[0];
+//     }
+//   }
+
+//   console.log('ID: ' + companyID);
+
+//   for await (const data of CIDdata) {
+//     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + data[0] + companyID + '.json';
+//     allMetaData.push(metadata);
+//   }
+
+//   console.log(allMetaData);
+// };
 
 function Detail({ companyData }) {
   const [selectedChart, setSelectedChart] = useState("consumption");
@@ -15,6 +40,8 @@ function Detail({ companyData }) {
 
     const company = queryParams.get('company');
     document.getElementById('companyname').textContent = company;
+
+    //readCSVFile(company);
 
     const destroyChartInstances = () => {
       chartInstances.current.forEach((chart) => {
@@ -103,6 +130,39 @@ function Detail({ companyData }) {
     document.getElementById('sharing').className = chart == 'sharing' ? 'selectedButton' : 'nonSelectedButton';
   };
 
+  // const loadNFTs = () => {
+  //     // Get a reference to the parent container
+  //   var parentContainer = document.getElementById('parent-container');
+
+  //   // Define an array of dates
+  //   var dates = ['02-16-2023', '03-16-2023', '04-16-2023', '05-16-2023'];
+
+  //   // Iterate over the dates and create the div elements dynamically
+  //   dates.forEach(function(date) {
+  //     // Create the outer div element
+  //     var div = document.createElement('div');
+  //     div.className = `${stylesDetails.ProgressbarItem}`;
+
+  //     // Create the image element
+  //     var img = document.createElement('img');
+  //     img.src = '../images/Icon.png';
+
+  //     // Create the paragraph element
+  //     var p = document.createElement('p');
+  //     p.textContent = date;
+
+  //     // Append the image and paragraph elements to the outer div element
+  //     div.appendChild(img);
+  //     div.appendChild(p);
+
+  //     // Append the outer div element to the parent container
+  //     parentContainer.appendChild(div);
+  //   });
+  // };
+
+  // loadNFTs();
+
+
   return (
     <div className={`${stylesDetails.Container}`}>
       {/* HEADER */}
@@ -117,23 +177,8 @@ function Detail({ companyData }) {
 
         {/* NFT LIST */}
         <h4>EPCoins</h4>
-        <div className={`${stylesDetails.Progressbar}`}>
-          <div className={`${stylesDetails.ProgressbarItem}`}>
-            <img src='../images/Icon.png'></img>
-            <p>02-16-2023</p>
-          </div>
-          <div className={`${stylesDetails.ProgressbarItem}`}>
-            <img src='../images/Icon.png'></img>
-            <p>03-16-2023</p>
-          </div>
-          <div className={`${stylesDetails.ProgressbarItem}`}>
-            <img src='../images/Icon.png'></img>
-            <p>04-16-2023</p>
-          </div>        
-          <div className={`${stylesDetails.ProgressbarItem}`}>
-            <img src='../images/Icon.png'></img>
-            <p>05-16-2023</p>
-          </div>
+        <div id='parent-container' className={`${stylesDetails.Progressbar}`}>
+
         </div>
 
         {/* PROGRESS GRAPH */}  

@@ -27,29 +27,37 @@ app.post('/register',(req,res) => {
 })
 
 
+const companyData = [];
+const CIDdata = [];
+
+const readCSVFile = async () =>
+{
+  companyData.length = 0;
+
+  const stream = fs.createReadStream('CompanyInfo.csv')
+    .pipe(csv());
+
+  for await (const row of stream) {
+    const {ID,UsageValue,GreenValue,SharingValue,Address,CompanyName} = row;
+    companyData.push([ID,CompanyName]);
+  }
+
+  const streamCID = fs.createReadStream('CIDs.csv')
+    .pipe(csv());
+
+  for await (const row of streamCID) {
+    const {Date,CID} = row;
+    CIDdata.push([Date,CID]);
+  }
+};
+
+
 //const provider = process.env.INFURA_URL;
 
 const provider = 'https://mainnet.infura.io/v3/fb039c9592f7494092d531602fb06e12';
 const https = require('https');
 
 //const LoadedMetadata = new Map();
-
-const CIDdata = [];
-
-const readCSVFile = async () =>
-{
-  CIDdata.length = 0;
-
-  const stream = fs.createReadStream('CIDs.csv')
-    .pipe(csv());
-
-  for await (const row of stream) {
-    const {Date, CID} = row;
-    CIDdata.push([Date, CID]);
-  }
-
-  console.log('CSV file processed');
-};
 
 async function LoadLatestMetaData()
 {
@@ -179,3 +187,4 @@ async function GetJsonFromURL(url)
 
 //export default MetaMaskButtonClicked;
 export default GetAllJsonsInFolder;
+export const companyData2 = 'test';
