@@ -106,39 +106,39 @@ function Detail({ companyData }) {
   };
 
   return (
-    <div className={`Container ${styles.Container}`}>
+    <div className={`${styles.Container}`}>
       {/* HEADER */}
       <Header />
       <h2 id='companyname'></h2>
 
       {/* DESCRIPTION */}
-      <div className={`Container ${stylesDetails.Description}`}>
+      <div className={`${stylesDetails.Description}`}>
         <p>{companyData.description}</p>
       </div>
 
       {/* NFT LIST */}
       <h4>EPCoins</h4>
-      <div className={`Container ${stylesDetails.Progressbar}`}>
-        <div className={`Container ${stylesDetails.ProgressbarItem}`}>
+      <div className={`${stylesDetails.Progressbar}`}>
+        <div className={`${stylesDetails.ProgressbarItem}`}>
           <img src='../images/Icon.png'></img>
           <p>02-16-2023</p>
         </div>
-        <div className={`Container ${stylesDetails.ProgressbarItem}`}>
+        <div className={`${stylesDetails.ProgressbarItem}`}>
           <img src='../images/Icon.png'></img>
           <p>03-16-2023</p>
         </div>
-        <div className={`Container ${stylesDetails.ProgressbarItem}`}>
+        <div className={`${stylesDetails.ProgressbarItem}`}>
           <img src='../images/Icon.png'></img>
           <p>04-16-2023</p>
         </div>        
-        <div className={`Container ${stylesDetails.ProgressbarItem}`}>
+        <div className={`${stylesDetails.ProgressbarItem}`}>
           <img src='../images/Icon.png'></img>
           <p>05-16-2023</p>
         </div>
       </div>
 
       {/* PROGRESS GRAPH */}  
-      <div className={`Container ${stylesDetails.ProgressChart}`}>
+      <div className={`${stylesDetails.ProgressChart}`}>
         <h4>Progress chart</h4>
         <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
         <button classname='{`${stylesDetails.selectedButton}' id='consumption' onClick={() => selectNewChart("consumption")}>Consumption</button>

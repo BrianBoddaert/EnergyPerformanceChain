@@ -1,8 +1,10 @@
 .table {
-  width: 100%;
+  width: 60%;
   border-collapse: separate;
   border-spacing: 0 8px;
   border-collapse: collapse;
+  margin: 0 auto;
+  margin-top: 140px;
 }
 
 .table th {
@@ -10,8 +12,8 @@
   font-weight: bold;
   background-color: #7fae8a;
   color: #2f452f;
-  padding: 12px;
-  padding-left: 15px;
+  padding: 10px;
+  padding-left: 20px;
   text-align: left;
   border-radius: 8px;
   padding-right: 8px; 
