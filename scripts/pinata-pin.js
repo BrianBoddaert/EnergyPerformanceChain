@@ -20,7 +20,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0xb6da606a8ED1C037F01C21E4e798520932906c59' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x059b3c666a58Faab2746AD747b97F20d7BFf368d' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -46,8 +46,8 @@ const readCSVFileAndRegisterCompanies = async () =>
     .pipe(csv());
 
   for await (const row of stream) {
-    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
-    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
+    const { ID, UsageValue, GreenValue, SharingValue, Address, CompanyName } = row;
+    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address, CompanyName]);
 
     await new Promise((resolve, reject) => {
       EPChainContract.methods.registerCompany(ID, Address).send({
@@ -189,7 +189,7 @@ const pinImagesToPinata = async () =>
 const createMetadata = async (_id) => {
   // Define the metadata entries
   const metadata = {
-    name: "companyName",
+    name: companyData[_id][5],
     description: "givenDescription",
     image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
     attributes: [
