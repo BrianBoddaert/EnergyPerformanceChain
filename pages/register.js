@@ -29,6 +29,40 @@ function App()
         metaMaskButton.innerText = 'Metamask is linked';
     }
 
+    async function handleFormSubmit(event) {
+        event.preventDefault(); // Prevent the default form submission
+        console.log("test");
+      
+        // Create an object with the form data
+        const formData = {
+            companyName: document.getElementById('cname').value,
+            industry: document.getElementById('industry').value,
+          };
+      
+        try {
+          // Make an API call to the server to save the data
+          const response = await fetch('/api/registeredCompanies', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+      
+          // Handle the response as needed
+          if (response.ok) {
+            console.log("Uploaded json successfully!");
+            // Data saved successfully
+          } else {
+            console.log("Failed to upload json!");
+            // Handle the error case
+          }
+        } catch (error) {
+            console.log("Upload json Error: " + error);
+          // Handle any network or server errors
+        }
+      }
+
     const handleButtonClick = async () => 
     {
         const metaMaskButton = document.getElementById('metamaskbutton');
@@ -57,7 +91,7 @@ function App()
 
             <button onClick={handleButtonClick} id='metamaskbutton'>Link Metamask</button><br/>
 
-            <form>     
+            <form method="POST" action="/register" encType="multipart/form-data">     
                 <label>Company name:</label><br/>
                 <input type="text" id="cname" name="cname"/><br/>
                 <label>Industry:</label><br/>
