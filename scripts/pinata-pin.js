@@ -9,6 +9,7 @@ const rfs = require("recursive-fs");
 const basePathConverter = require("base-path-converter");
 const axios = require('axios');
 const sharp = require('sharp');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 //Pinata details
 const JWT = process.env.JWT
 //Web3 details
@@ -19,7 +20,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x3C8F63Ef7C4E815352C6a1121DA044d877c0E778' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0xb6da606a8ED1C037F01C21E4e798520932906c59' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -29,11 +30,129 @@ web3.eth.defaultAccount = account.address;
 //CID vars
 let imgFolderCID = "";
 let dataFolderCID = "";
-let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
+let date = "202305" //set it every time //TODO: create new folders with Data + date AND Images + date and delete the folders at the very end after minting
 let companyData = [];
 let averageUsage = 0;
 let averageGreen = 0;
 let averageSharing = 0;
+
+const readCSVFileAndRegisterCompanies = async () =>
+{
+  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
+  companyData.length = 0;
+  companyData.push([ 0, 0, "0x0" ]);
+
+  const stream = fs.createReadStream('../CompanyInfo.csv')
+    .pipe(csv());
+
+  for await (const row of stream) {
+    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
+    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
+
+    await new Promise((resolve, reject) => {
+      EPChainContract.methods.registerCompany(ID, Address).send({
+        from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+        gas: 3000000,
+      })
+      .on('receipt', (receipt) => {
+        // Transaction completed successfully
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        // Transaction failed
+        reject(error);
+      });
+    });
+  }
+
+  console.log('CSV file processed');
+};
+
+const calculateAverageValues = async () =>
+{
+  let usageSum = 0;
+  let greenSum = 0;
+  let sharingSum = 0;
+  for (let i = 1; i <= companyData.length - 1; i++)
+  {
+    usageSum += parseInt(companyData[i][1]);
+    greenSum += parseInt(companyData[i][2]);
+    sharingSum += parseInt(companyData[i][3]);
+  }
+  averageUsage = usageSum / (companyData.length - 1)
+  averageGreen = greenSum / (companyData.length - 1)
+  averageSharing = sharingSum / (companyData.length - 1)
+
+}
+
+const createImage = async (_id) => {
+  const midRange = 0.5;
+  const colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
+  const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
+  const colorVariable3 = 1 - ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
+
+  const imageSize = 200; // Size of the image in pixels
+  const radius = imageSize / 2;
+  const anglePerPart = (2 * Math.PI) / 3;
+
+  // Calculate the start and end angles for each part
+  const startAngle1 = 0;
+  const endAngle1 = anglePerPart;
+  const startAngle2 = anglePerPart;
+  const endAngle2 = 2 * anglePerPart;
+  const startAngle3 = 2 * anglePerPart;
+  const endAngle3 = 2 * Math.PI;
+
+  // Calculate the RGB color values based on the input values
+  const color1 = `rgba(${Math.round((1 - colorVariable1) * 255)}, ${Math.round(colorVariable1 * 255)}, 0, 1)`;
+  const color2 = `rgba(${Math.round((1 - colorVariable2) * 255)}, ${Math.round(colorVariable2 * 255)}, 0, 1)`;
+  const color3 = `rgba(${Math.round((1 - colorVariable3) * 255)}, ${Math.round(colorVariable3 * 255)}, 0, 1)`;
+
+  // Create a new blank image with a transparent background
+  const image = sharp({
+    create: {
+      width: imageSize,
+      height: imageSize,
+      channels: 4, // Set channels to 4 for RGBA (including alpha channel)
+      background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
+    }
+  });
+
+  // Draw each part of the circle with the corresponding color
+  image.composite([
+    {
+      input: Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color1}" />
+        </svg>`
+      ),
+      left: 0,
+      top: 0
+    },
+    {
+      input: Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color2}" />
+        </svg>`
+      ),
+      left: 0,
+      top: 0
+    },
+    {
+      input: Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color3}" />
+        </svg>`
+      ),
+      left: 0,
+      top: 0
+    }
+  ]);
+
+  // Save the image to a file with a transparent background
+  const outputPath = path.join(__dirname, '../Images' + date, date + _id + '.png');
+  await image.png().toFile(outputPath);
+};
 
 const pinImagesToPinata = async () =>
 {
@@ -66,109 +185,6 @@ const pinImagesToPinata = async () =>
     console.log('Pin image failed!');
   }
 };
-
-const pinMetaDataToPinata = async () =>
-{
-  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-  const src = '../Data' + date;
-
-  try {
-    const { dirs, files } = await rfs.read(src);
-    let data = new FormData();
-
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        data.append(`file`, fs.createReadStream(file), {
-          filepath: basePathConverter(src, file),
-        });
-      }
-    }
-
-    const response = await axios.post(pinataURL, data, {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-        'Authorization': JWT,
-      },
-    });
-
-    console.log('Pin metadata succeeded!', response.data.IpfsHash);
-    dataFolderCID = response.data.IpfsHash;
-  } catch (error) {
-    console.log('Pin metadata failed!', error);
-  }
-};
-
-const createImage = async (_id) =>
-{
-  const midRange = 0.5;
-  const colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
-  const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
-  const colorVariable3 = 1 - ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
-  
-  const imageSize = 200; // Size of the image in pixels
-  const radius = imageSize / 2;
-  const anglePerPart = (2 * Math.PI) / 3;
-
-  // Calculate the start and end angles for each part
-  const startAngle1 = 0;
-  const endAngle1 = anglePerPart;
-  const startAngle2 = anglePerPart;
-  const endAngle2 = 2 * anglePerPart;
-  const startAngle3 = 2 * anglePerPart;
-  const endAngle3 = 2 * Math.PI;
-
-  // Calculate the RGB color values based on the input values
-  const color1 = `rgb(${Math.round((1 - colorVariable1) * 255)}, ${Math.round(colorVariable1 * 255)}, 0)`;
-  const color2 = `rgb(${Math.round((1 - colorVariable2) * 255)}, ${Math.round(colorVariable2 * 255)}, 0)`;
-  const color3 = `rgb(${Math.round((1 - colorVariable3) * 255)}, ${Math.round(colorVariable3 * 255)}, 0)`;
-
-  // Create a new blank image with a white background
-  const image = sharp({
-    create: {
-      width: imageSize,
-      height: imageSize,
-      channels: 3,
-      background: { r: 255, g: 255, b: 255 }
-    }
-  });
-
-  // Draw each part of the circle with the corresponding color
-  image
-    .composite([
-      {
-        input: Buffer.from(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-            <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color1}" />
-          </svg>`
-        ),
-        left: 0,
-        top: 0
-      },
-      {
-        input: Buffer.from(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-            <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color2}" />
-          </svg>`
-        ),
-        left: 0,
-        top: 0
-      },
-      {
-        input: Buffer.from(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-            <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color3}" />
-          </svg>`
-        ),
-        left: 0,
-        top: 0
-      }
-    ])
-    .png();
-
-  // Save the image to a file
-  const outputPath = path.join(__dirname, '../Images' + date, date + _id + '.png');
-  await image.toFile(outputPath); 
-}
 
 const createMetadata = async (_id) => {
   // Define the metadata entries
@@ -207,74 +223,62 @@ const createMetadata = async (_id) => {
   });
 };
 
-const readCSVFileAndRegisterCompanies = async () =>
+const pinMetaDataToPinata = async () =>
 {
-  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
-  companyData.length = 0;
-  companyData.push([ 0, 0, "0x0" ]);
+  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const src = '../Data' + date;
 
-  const stream = fs.createReadStream('../CompanyInfo.csv')
-    .pipe(csv());
+  try {
+    const { dirs, files } = await rfs.read(src);
+    let data = new FormData();
 
-  for await (const row of stream) {
-    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
-    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        data.append(`file`, fs.createReadStream(file), {
+          filepath: basePathConverter(src, file),
+        });
+      }
+    }
 
-    await new Promise((resolve, reject) => {
-      EPChainContract.methods.registerCompany(ID, Address).send({
-        from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
-        gas: 3000000,
-      })
-      .on('receipt', (receipt) => {
-        // Transaction completed successfully
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        // Transaction failed
-        reject(error);
-      });
+    const response = await axios.post(pinataURL, data, {
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        'Authorization': JWT,
+      },
     });
-  }
 
-  console.log('CSV file processed');
+    console.log('Pin metadata succeeded!', response.data.IpfsHash);
+    dataFolderCID = response.data.IpfsHash;
+    addNewRow(date, dataFolderCID);
+  } catch (error) {
+    console.log('Pin metadata failed!', error);
+  }
 };
 
-const calculateAverageValues = async () =>
+async function addNewRow(date, cid)
 {
-  let usageSum = 0;
-  let greenSum = 0;
-  let sharingSum = 0;
-  for (let i = 1; i <= companyData.length - 1; i++)
-  {
-    usageSum += parseInt(companyData[i][1]);
-    greenSum += parseInt(companyData[i][2]);
-    sharingSum += parseInt(companyData[i][3]);
-  }
-  averageUsage = usageSum / (companyData.length - 1)
-  averageGreen = greenSum / (companyData.length - 1)
-  averageSharing = sharingSum / (companyData.length - 1)
+  // Define the CSV file path and headers
+  const csvHeaders =
+  [
+    { id: 'Date', title: 'Date' },
+    { id: 'CID', title: 'CID' }
+  ];
 
-}
-
-const mintNFTs = async () =>
-{
-  return new Promise((resolve, reject) =>
-  {
-    EPChainContract.methods.mintForRegisteredCompanies(date).send({
-      from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
-      gas: 4000000,
-      gasPrice: '5000000000',
-    })
-      .on('receipt', (receipt) => {
-        console.log('Mint NFTs succeeded!');
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        console.log('Mint NFTs failed!', error);
-        reject(error);
-      });
+  const csvWriter = createCsvWriter
+  ({
+    path: '../CIDs.csv',
+    header: csvHeaders,
+    append: true
   });
-};
+
+  const newRecord =
+  [
+    { Date: date, CID: cid }
+  ];
+
+  await csvWriter.writeRecords(newRecord);
+  console.log('New CID row added successfully.');
+}
 
 const updateCIDValueOnSmartContract = async () =>
 {
@@ -283,7 +287,7 @@ const updateCIDValueOnSmartContract = async () =>
     const IPFSURl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + dataFolderCID;
     console.log(IPFSURl);
     EPChainContract.methods.setBaseURL(IPFSURl).send({
-      from: '0xDFD27C5c9b8F9a86bc1B0e887F58A4f3ABA6391c',
+      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
       gas: 3000000,
     })
       .on('receipt', (receipt) => {
@@ -297,6 +301,25 @@ const updateCIDValueOnSmartContract = async () =>
   });
 };
 
+const mintNFTs = async () =>
+{
+  return new Promise((resolve, reject) =>
+  {
+    EPChainContract.methods.mintForRegisteredCompanies(date).send({
+      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+      gas: 4000000,
+      gasPrice: '5000000000',
+    })
+      .on('receipt', (receipt) => {
+        console.log('Mint NFTs succeeded!');
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        console.log('Mint NFTs failed!', error);
+        reject(error);
+      });
+  });
+};
 
 const mainFunction = async () =>
 {
