@@ -9,6 +9,7 @@ const rfs = require("recursive-fs");
 const basePathConverter = require("base-path-converter");
 const axios = require('axios');
 const sharp = require('sharp');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 //Pinata details
 const JWT = process.env.JWT
 //Web3 details
@@ -29,74 +30,60 @@ web3.eth.defaultAccount = account.address;
 //CID vars
 let imgFolderCID = "";
 let dataFolderCID = "";
-let date = "202305" //set it every time //TODO: set the date on folder names of images and data as well
+let date = "202305" //set it every time //TODO: create new folders with Data + date AND Images + date and delete the folders at the very end after minting
 let companyData = [];
 let averageUsage = 0;
 let averageGreen = 0;
 let averageSharing = 0;
 
-const pinImagesToPinata = async () =>
+const readCSVFileAndRegisterCompanies = async () =>
 {
-  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-  const src = '../Images' + date;
+  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
+  companyData.length = 0;
+  companyData.push([ 0, 0, "0x0" ]);
 
-  try
-  {
-    const { dirs, files } = await rfs.read(src);
-    let data = new FormData();
+  const stream = fs.createReadStream('../CompanyInfo.csv')
+    .pipe(csv());
 
-    for (const file of files) {
-      if (file.endsWith('.png')) {
-        data.append('file', fs.createReadStream(file), {
-          filepath: basePathConverter(src, file),
+  for await (const row of stream) {
+    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
+    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
+
+    await new Promise((resolve, reject) => {
+      EPChainContract.methods.registerCompany(ID, Address).send({
+        from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+        gas: 3000000,
+      })
+      .on('receipt', (receipt) => {
+        // Transaction completed successfully
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        // Transaction failed
+        reject(error);
       });
-      }
-    }
-
-    const response = await axios.post(pinataURL, data, {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-        Authorization: JWT,
-      },
     });
-
-    console.log('Pin image succeeded!', response.data.IpfsHash);
-    imgFolderCID = response.data.IpfsHash;
-  } catch (error) {
-    console.log('Pin image failed!');
   }
+
+  console.log('CSV file processed');
 };
 
-const pinMetaDataToPinata = async () =>
+const calculateAverageValues = async () =>
 {
-  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-  const src = '../Data' + date;
-
-  try {
-    const { dirs, files } = await rfs.read(src);
-    let data = new FormData();
-
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        data.append(`file`, fs.createReadStream(file), {
-          filepath: basePathConverter(src, file),
-        });
-      }
-    }
-
-    const response = await axios.post(pinataURL, data, {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-        'Authorization': JWT,
-      },
-    });
-
-    console.log('Pin metadata succeeded!', response.data.IpfsHash);
-    dataFolderCID = response.data.IpfsHash;
-  } catch (error) {
-    console.log('Pin metadata failed!', error);
+  let usageSum = 0;
+  let greenSum = 0;
+  let sharingSum = 0;
+  for (let i = 1; i <= companyData.length - 1; i++)
+  {
+    usageSum += parseInt(companyData[i][1]);
+    greenSum += parseInt(companyData[i][2]);
+    sharingSum += parseInt(companyData[i][3]);
   }
-};
+  averageUsage = usageSum / (companyData.length - 1)
+  averageGreen = greenSum / (companyData.length - 1)
+  averageSharing = sharingSum / (companyData.length - 1)
+
+}
 
 const createImage = async (_id) => {
   const midRange = 0.5;
@@ -167,6 +154,38 @@ const createImage = async (_id) => {
   await image.png().toFile(outputPath);
 };
 
+const pinImagesToPinata = async () =>
+{
+  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const src = '../Images' + date;
+
+  try
+  {
+    const { dirs, files } = await rfs.read(src);
+    let data = new FormData();
+
+    for (const file of files) {
+      if (file.endsWith('.png')) {
+        data.append('file', fs.createReadStream(file), {
+          filepath: basePathConverter(src, file),
+      });
+      }
+    }
+
+    const response = await axios.post(pinataURL, data, {
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        Authorization: JWT,
+      },
+    });
+
+    console.log('Pin image succeeded!', response.data.IpfsHash);
+    imgFolderCID = response.data.IpfsHash;
+  } catch (error) {
+    console.log('Pin image failed!');
+  }
+};
+
 const createMetadata = async (_id) => {
   // Define the metadata entries
   const metadata = {
@@ -204,74 +223,62 @@ const createMetadata = async (_id) => {
   });
 };
 
-const readCSVFileAndRegisterCompanies = async () =>
+const pinMetaDataToPinata = async () =>
 {
-  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
-  companyData.length = 0;
-  companyData.push([ 0, 0, "0x0" ]);
+  const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const src = '../Data' + date;
 
-  const stream = fs.createReadStream('../CompanyInfo.csv')
-    .pipe(csv());
+  try {
+    const { dirs, files } = await rfs.read(src);
+    let data = new FormData();
 
-  for await (const row of stream) {
-    const { ID, UsageValue, GreenValue, SharingValue, Address } = row;
-    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address]);
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        data.append(`file`, fs.createReadStream(file), {
+          filepath: basePathConverter(src, file),
+        });
+      }
+    }
 
-    await new Promise((resolve, reject) => {
-      EPChainContract.methods.registerCompany(ID, Address).send({
-        from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
-        gas: 3000000,
-      })
-      .on('receipt', (receipt) => {
-        // Transaction completed successfully
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        // Transaction failed
-        reject(error);
-      });
+    const response = await axios.post(pinataURL, data, {
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        'Authorization': JWT,
+      },
     });
-  }
 
-  console.log('CSV file processed');
+    console.log('Pin metadata succeeded!', response.data.IpfsHash);
+    dataFolderCID = response.data.IpfsHash;
+    addNewRow(date, dataFolderCID);
+  } catch (error) {
+    console.log('Pin metadata failed!', error);
+  }
 };
 
-const calculateAverageValues = async () =>
+async function addNewRow(date, cid)
 {
-  let usageSum = 0;
-  let greenSum = 0;
-  let sharingSum = 0;
-  for (let i = 1; i <= companyData.length - 1; i++)
-  {
-    usageSum += parseInt(companyData[i][1]);
-    greenSum += parseInt(companyData[i][2]);
-    sharingSum += parseInt(companyData[i][3]);
-  }
-  averageUsage = usageSum / (companyData.length - 1)
-  averageGreen = greenSum / (companyData.length - 1)
-  averageSharing = sharingSum / (companyData.length - 1)
+  // Define the CSV file path and headers
+  const csvHeaders =
+  [
+    { id: 'Date', title: 'Date' },
+    { id: 'CID', title: 'CID' }
+  ];
 
-}
-
-const mintNFTs = async () =>
-{
-  return new Promise((resolve, reject) =>
-  {
-    EPChainContract.methods.mintForRegisteredCompanies(date).send({
-      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
-      gas: 4000000,
-      gasPrice: '5000000000',
-    })
-      .on('receipt', (receipt) => {
-        console.log('Mint NFTs succeeded!');
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        console.log('Mint NFTs failed!', error);
-        reject(error);
-      });
+  const csvWriter = createCsvWriter
+  ({
+    path: '../CIDs.csv',
+    header: csvHeaders,
+    append: true
   });
-};
+
+  const newRecord =
+  [
+    { Date: date, CID: cid }
+  ];
+
+  await csvWriter.writeRecords(newRecord);
+  console.log('New CID row added successfully.');
+}
 
 const updateCIDValueOnSmartContract = async () =>
 {
@@ -294,6 +301,25 @@ const updateCIDValueOnSmartContract = async () =>
   });
 };
 
+const mintNFTs = async () =>
+{
+  return new Promise((resolve, reject) =>
+  {
+    EPChainContract.methods.mintForRegisteredCompanies(date).send({
+      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+      gas: 4000000,
+      gasPrice: '5000000000',
+    })
+      .on('receipt', (receipt) => {
+        console.log('Mint NFTs succeeded!');
+        resolve(receipt);
+      })
+      .on('error', (error) => {
+        console.log('Mint NFTs failed!', error);
+        reject(error);
+      });
+  });
+};
 
 const mainFunction = async () =>
 {
@@ -356,4 +382,4 @@ const mainFunction = async () =>
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
-//mainFunction();
+mainFunction();
