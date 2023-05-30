@@ -30,6 +30,9 @@ contract EPChain is ERC721, Ownable
     mapping(uint => Company) private companies;
     uint private amountOfCompanies;
 
+    //Date to BaseURI
+    mapping(uint => string) private baseURIs;
+
     //Temporary var 
     uint MAX_ENERGY_EFFICIENCY = 100;
     
@@ -38,16 +41,10 @@ contract EPChain is ERC721, Ownable
     constructor() ERC721("EPChain", "EPC")
     {}
 
-    //To be able to link the NFT to a different folder for the newly generated/updated metadata on IPFS
-    function setBaseURL(string memory baseURL) public onlyOwner
+    //Returning the base URI based on the date using the mapping (because each minting period has its own baseURI)
+    function getBaseURI(uint date) internal view returns (string memory) 
     {
-        _baseURL = baseURL;
-    }
-
-    //Has to be overriden to return the custom base URL that we have given
-    function _baseURI() internal view override returns (string memory) 
-    {
-        return _baseURL;
+        return baseURIs[date];
     }
 
     //Updating or registering a company and their data, currently only energyUsage but can be a struct containing all the other data
@@ -65,7 +62,10 @@ contract EPChain is ERC721, Ownable
     function tokenURI(uint tokenId) public view override returns (string memory) 
     {
         require(_exists(tokenId), "Token ID invalid.");
-        string memory baseURI = _baseURI();
+
+        //Using the modulo operator to discard the ID from the start of the tokenId and only keep the last 6 digits which represents the date
+        uint256 date = tokenId % 1000000;
+        string memory baseURI = getBaseURI(date);
 
         return bytes(baseURI).length > 0 
             ? string(abi.encodePacked(baseURI, "/", tokenId.toString(), ".json")) 
@@ -73,8 +73,9 @@ contract EPChain is ERC721, Ownable
     }
 
     //Minting NFT for the registered companies
-    function mintForRegisteredCompanies(uint date) external onlyOwner 
+    function mintForRegisteredCompanies(uint date, string memory CID) external onlyOwner 
     {
+        baseURIs[date] = CID;
         for (uint i = 1; i <= amountOfCompanies; ++i)
         {
             _mintToken(date, companies[i].companyAddress);
@@ -87,21 +88,13 @@ contract EPChain is ERC721, Ownable
     {
         _tokenIds.increment();
         uint newItemId = _tokenIds.current();
-        _safeMint(to, concatenateUint(date, newItemId));
+        _safeMint(to, concatenateUint(newItemId, date));
         companies[newItemId].mintedCount += 1;
     }
 
-    //Takes two uints and combines them into one uint
-    function concatenateUint(uint date, uint value) internal pure returns (uint)
+    //Combines the id and the date
+    function concatenateUint(uint id, uint date) internal pure returns (uint)
     {
-        uint digits = 0;
-        uint temp = value;
-        while (temp != 0) 
-        {
-            digits++;
-            temp /= 10;
-        }
-        uint factor = 10 ** digits;
-        return date * factor + value;
+        return id * 1000000 + date;
     }
 }

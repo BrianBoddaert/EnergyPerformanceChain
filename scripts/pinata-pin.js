@@ -20,7 +20,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x059b3c666a58Faab2746AD747b97F20d7BFf368d' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x71bC9D2DD32C5b1c4FFAedBa5350EE348085fC70' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -150,7 +150,7 @@ const createImage = async (_id) => {
   ]);
 
   // Save the image to a file with a transparent background
-  const outputPath = path.join(__dirname, '../Images' + date, date + _id + '.png');
+  const outputPath = path.join(__dirname, '../Images' + date, _id + date + '.png');
   await image.png().toFile(outputPath);
 };
 
@@ -191,7 +191,7 @@ const createMetadata = async (_id) => {
   const metadata = {
     name: companyData[_id][5],
     description: "givenDescription",
-    image: "ipfs://" + imgFolderCID + "/" + date + _id + ".png",
+    image: "ipfs://" + imgFolderCID + "/" + _id + date + ".png",
     attributes: [
       {
         EnergyUsage: companyData[_id][1],
@@ -208,7 +208,7 @@ const createMetadata = async (_id) => {
   const metadataJson = JSON.stringify(metadata);
 
   // Define the file path and name
-  const filePath = '../Data' + date + '/' + date + _id + '.json';
+  const filePath = '../Data' + date + '/' + _id + date + '.json';
 
   return new Promise((resolve, reject) => {
     // Write the metadata JSON to a file
@@ -280,32 +280,13 @@ async function addNewRow(date, cid)
   console.log('New CID row added successfully.');
 }
 
-const updateCIDValueOnSmartContract = async () =>
-{
-  return new Promise((resolve, reject) =>
-  {
-    const IPFSURl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + dataFolderCID;
-    console.log(IPFSURl);
-    EPChainContract.methods.setBaseURL(IPFSURl).send({
-      from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
-      gas: 3000000,
-    })
-      .on('receipt', (receipt) => {
-        console.log('Update CID value succeeded!');
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        console.log('Update CID value failed!', error);
-        reject(error);
-      });
-  });
-};
-
 const mintNFTs = async () =>
 {
+  const IPFSURl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + dataFolderCID;
+
   return new Promise((resolve, reject) =>
   {
-    EPChainContract.methods.mintForRegisteredCompanies(date).send({
+    EPChainContract.methods.mintForRegisteredCompanies(date, IPFSURl).send({
       from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
       gas: 4000000,
       gasPrice: '5000000000',
@@ -362,9 +343,6 @@ const mainFunction = async () =>
       await new Promise((resolve) => { setTimeout(async () => { await pinMetaDataToPinata(); resolve(); }, 1000);});
 
       //Write here to a CSV file what the CID and ID (for example 202305) is//maybe not needed, we can track each individuals metadata using their nft that can be tracked from smart contract
-    
-      //Setting the new CID of the metadata on the smart contract
-      await new Promise((resolve) => { setTimeout(async () => { await updateCIDValueOnSmartContract(); resolve(); }, 3000);});
     
       //Minting the NFT's for all registered companies
       await new Promise((resolve) => { setTimeout(async () => { await mintNFTs(); resolve(); }, 10000);});
