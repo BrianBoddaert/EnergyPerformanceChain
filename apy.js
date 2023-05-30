@@ -70,15 +70,15 @@ async function LoadLatestMetaData()
   // "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CID + '/' + date + _id + '.json'
 
   const len = CIDdata.length - 1;
-  const baseUrl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CIDdata[len][1] + '/' + CIDdata[len][0];
+  const baseUrl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CIDdata[len][1] + '/';
 
   console.log("Started pulling Jsons from IPFS...");
 
   for (let i = 0; i < JsonsPerPageLimit; i++)
   {
     console.log("checking iteration " + i);
-    let url = baseUrl + `${i+1}.json`;
-
+    let url = baseUrl + `${i+1}` +  + CIDdata[len][0] + `.json`;
+    console.log(url);
     const JsonWithImage = await isJsonWithImage(url);
     if (!JsonWithImage[0])
     {
@@ -86,7 +86,6 @@ async function LoadLatestMetaData()
     }
 
     Result[i] = JsonWithImage[1];
-    console.log(Result[i]);
   }
 
   console.log("Completed pulling Jsons from IPFS!");

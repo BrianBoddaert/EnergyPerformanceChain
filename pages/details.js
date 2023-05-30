@@ -23,7 +23,7 @@ let allMetaData = [];
 //   console.log('ID: ' + companyID);
 
 //   for await (const data of CIDdata) {
-//     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + data[0] + companyID + '.json';
+//     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
 //     allMetaData.push(metadata);
 //   }
 
