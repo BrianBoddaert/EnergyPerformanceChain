@@ -173,7 +173,7 @@ export function Table({nftJsons }) {
           <td className={`rounded-box ${styles.td}`}>{item[selectedOption]}</td>
           <td className={`rounded-box ${styles.td} ${styles.makeClicky}`} onClick={() => handleButtonClick(item)}>{item.company}</td>
           <td className={`rounded-box ${styles.td}`}>
-            <img src={item.token} alt={item.company} />
+            <img src={item.token} alt={item.company} onClick={() => handleImgClick(item)} />
           </td>
           <td className={`${styles.graphh}`}>
             <canvas ref={(ref) => graphRefs.current[index] = ref}></canvas>
@@ -185,3 +185,9 @@ export function Table({nftJsons }) {
   );
 }
 
+function handleImgClick(item)
+{
+  const id = item.token.match(/\/(\d+)\.png$/)[1];
+  let NFTMintURL = "https://volta-explorer.energyweb.org/token/0x71bc9d2dd32c5b1c4ffaedba5350ee348085fc70/instance/" + id + "/token-transfers"; //TODO: make a global var out of the smart contract address and access here
+  window.open(NFTMintURL);
+}
