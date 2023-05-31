@@ -30,6 +30,18 @@ app.post('/register',(req,res) => {
 const companyData = [];
 const CIDdata = [];
 
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
+app.get('/getTest', (req, res) => {
+  const data = {
+    companyData: companyData,
+    CIDdata: CIDdata
+  };
+  res.json(data);
+});
+
 const readCSVFile = async () =>
 {
   companyData.length = 0;

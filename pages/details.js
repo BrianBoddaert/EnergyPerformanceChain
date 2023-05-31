@@ -7,7 +7,7 @@ import stylesDetails from '../styles/Details.module.css';
 //import test from '../apy.js';  
 
 
-let allMetaData = [];
+// let allMetaData = [];
 
 // const readCSVFile = async (companyname) =>
 // {
@@ -29,6 +29,16 @@ let allMetaData = [];
 
 //   console.log(allMetaData);
 // };
+
+fetch('http://localhost:5000/getTest')
+  .then(response => response.json())
+  .then(data => {
+    const CIDdata = data.CIDdata;
+    const companyData = data.companyData;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
 
 function Detail({ companyData }) {
   const [selectedChart, setSelectedChart] = useState("consumption");
