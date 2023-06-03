@@ -16,7 +16,8 @@ export async function getServerSideProps(context) {
   }
 }
 
-function App({nftJsons }) {
+function App({nftJsons }) 
+{
     return (
       <div className={`Container ${styles.Main}`}>
         <div className={`Container ${styles.Container}`}>

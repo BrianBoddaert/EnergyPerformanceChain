@@ -1,33 +1,12 @@
 import fetch from "node-fetch";
 
 //import express from '../node_modules/express/lib/express.js';
-const express = require('express');
-const app = express();
-const upload = require('express-fileupload');
-const port = 5000;
-
-app.use(upload());
-
-app.get('/register', (req,res) => {
-  res.sendFile(__dirname + '/register')
-})
-
-app.post('/register',(req,res) => {
-  console.log('jdjajdsmd')
-  if (req.cname){
-  console.log(req.cname)
-  }
-})
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
-
 
 //const provider = process.env.INFURA_URL;
 
 const provider = 'https://mainnet.infura.io/v3/fb039c9592f7494092d531602fb06e12';
 const https = require('https');
+
 
 //const LoadedMetadata = new Map();
 
@@ -149,6 +128,13 @@ async function GetJsonFromURL(url)
         });
       });
 
+}
+
+const TEMP = true;
+
+async function GetTEMP()
+{
+  return TEMP;
 }
 
 //export default MetaMaskButtonClicked;

@@ -6,6 +6,7 @@ import styles from '../styles/Main.module.css';
 
 //import MetaMaskButtonClicked from '../apy.js';
 
+
 function App() 
 {
     async function loginWithMetaMask()
@@ -13,6 +14,7 @@ function App()
         const metaMaskButton = document.getElementById('metamaskbutton');
         const hiddenText = document.getElementById('hiddenText');
         const metaMaskAddressText = document.getElementById('metamaskaddresstext');
+        const metaMaskAddressStorage = document.getElementById('metamaskaddressstorage');
 
         const accounts = await window.ethereum.request({method: 'eth_requestAccounts'})
         .catch((e) => {
@@ -26,6 +28,7 @@ function App()
         window.userwalletAddress = accounts[0];
         hiddenText.removeAttribute("hidden");
         metaMaskAddressText.innerText = accounts[0];
+        metaMaskAddressStorage.value = accounts[0];
         metaMaskButton.innerText = 'Metamask is linked';
     }
 
@@ -80,18 +83,17 @@ function App()
     return (
         <div className={`Container ${styles.Container}`}>
             <Header />
-            
             <h2>Register</h2><br/>
-            <div id='hiddenText' hidden>
-            <p>Successfully linked metamask address!</p>
-            <p id='metamaskaddresstext'></p>
-            <p>Open your metamask browser addon and click "connected" if you want to disconnect</p>
-            </div>
-            
-
             <button onClick={handleButtonClick} id='metamaskbutton'>Link Metamask</button><br/>
+            <div id='hiddenText' hidden>
+                <p>Successfully linked metamask address!</p>
+                <p id="metamaskaddresstext" name="metamaskaddresstext"></p> 
+                <p>Open your metamask browser addon and click "connected" if you want to disconnect</p>
+            </div>
 
-            <form method="POST" action="/register" encType="multipart/form-data">     
+            <form method="POST" action="/api/register" encType="multipart/form-data">    
+                <input hidden type="text" id="metamaskaddressstorage" name="metamaskaddressstorage"/> <br/>
+                
                 <label>Company name:</label><br/>
                 <input type="text" id="cname" name="cname"/><br/>
                 <label>Industry:</label><br/>
