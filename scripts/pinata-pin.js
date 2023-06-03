@@ -20,7 +20,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x290dF5D82Ed2076ddfc6648d225fA21b3bEfaE30' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x6da475A2c1f098f996A4fB64bC57d9eA50Ea1064' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -202,6 +202,37 @@ const createImage = async (_id) =>
   // Save the image to a file with a transparent background
   const outputPath = path.join(__dirname, '../' + imageFolder, _id + date + '.png');
   await image.png().toFile(outputPath);
+
+  // Paths to the base image and overlay image
+  const overlayImagePath = '../NFTOverlay.png';
+
+  // Load the base image
+  Jimp.read(outputPath)
+    .then(baseImage => {
+      // Load the overlay image
+      Jimp.read(overlayImagePath)
+        .then(overlayImage => {
+          // Resize the overlay image to fit the base image
+          overlayImage.resize(baseImage.getWidth(), baseImage.getHeight());
+
+          // Compose the images with overlay
+          baseImage.composite(overlayImage, 0, 0, {
+            mode: Jimp.BLEND_SOURCE_OVER,
+            opacityDest: 1,
+            opacitySource: 1
+          });
+
+          // Save the resulting image
+          baseImage.write(outputPath);
+          console.log('Overlay added successfully!');
+        })
+        .catch(err => {
+          console.error('Error reading overlay image:', err);
+        });
+    })
+    .catch(err => {
+      console.error('Error reading base image:', err);
+    });
 };
 
 const pinImagesToPinata = async () =>
