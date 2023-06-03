@@ -1,5 +1,7 @@
 import { Header } from './header.js';
 import { Table } from './table.js';
+import { AboutUs } from './aboutus.js';
+import { Info } from './info.js';
 
 import GetAllJsonsInFolder from '../apy.js';  
 //import MetaMaskButtonClicked from '../apy.js';
@@ -23,6 +25,8 @@ function App({nftJsons })
         <div className={`Container ${styles.Container}`}>
             <Header />
             <Table nftJsons={nftJsons} />
+            <AboutUs />
+            <Info />
         </div>
       </div>
     );

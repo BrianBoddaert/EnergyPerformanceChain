@@ -1,31 +1,91 @@
 import fetch from "node-fetch";
 
 //import express from '../node_modules/express/lib/express.js';
-
-//const provider = process.env.INFURA_URL;
+const express = require('express');
+const fs = require("fs");
+const csv = require('csv-parser');
+const app = express();
+const upload = require('express-fileupload');
+const port = 5000;
 
 const provider = 'https://mainnet.infura.io/v3/fb039c9592f7494092d531602fb06e12';
 const https = require('https');
 
+app.use(upload());
 
-//const LoadedMetadata = new Map();
 
-async function LoadMetaData()
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+app.get('/register', (req,res) => {
+  res.sendFile(__dirname + '/register')
+})
+
+app.post('/register',(req,res) => {
+  console.log('jdjajdsmd')
+  if (req.cname){
+  console.log(req.cname)
+  }
+})
+
+
+const companyData = [];
+const CIDdata = [];
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
+app.get('/getTest', (req, res) => {
+  const data = {
+    companyData: companyData,
+    CIDdata: CIDdata
+  };
+  res.json(data);
+});
+
+const readCSVFile = async () =>
+{
+  companyData.length = 0;
+
+  const stream = fs.createReadStream('CompanyInfo.csv')
+    .pipe(csv());
+
+  for await (const row of stream) {
+    const {ID,UsageValue,GreenValue,SharingValue,Address,CompanyName} = row;
+    companyData.push([ID,CompanyName]);
+  }
+
+  const streamCID = fs.createReadStream('CIDs.csv')
+    .pipe(csv());
+
+  for await (const row of streamCID) {
+    const {Date,CID} = row;
+    CIDdata.push([Date,CID]);
+  }
+};
+
+async function LoadLatestMetaData()
 {
   var Result = [];
   const JsonsPerPageLimit = 30;
   const year = 2023;
   const month = '05';
 
-  const baseUrl = "https://gateway.pinata.cloud/ipfs/QmYyJMvcBfyqACKaeN5SC6UF9bs4zEWc4SD19MHCK1z1eh/"; //1.json
+  //https://gateway.pinata.cloud/ipfs/QmYyJMvcBfyqACKaeN5SC6UF9bs4zEWc4SD19MHCK1z1eh/
+  // "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CID + '/' + date + _id + '.json'
+
+  const len = CIDdata.length - 1;
+  const baseUrl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CIDdata[len][1] + '/';
 
   console.log("Started pulling Jsons from IPFS...");
 
   for (let i = 0; i < JsonsPerPageLimit; i++)
   {
     console.log("checking iteration " + i);
-    let url = baseUrl + `/` + year + month + `${i+1}.json`;
-
+    let url = baseUrl + `${i+1}` +  + CIDdata[len][0] + `.json`;
+    console.log(url);
     const JsonWithImage = await isJsonWithImage(url);
     if (!JsonWithImage[0])
     {
@@ -33,7 +93,6 @@ async function LoadMetaData()
     }
 
     Result[i] = JsonWithImage[1];
-    console.log(Result[i]);
   }
 
   console.log("Completed pulling Jsons from IPFS!");
@@ -43,7 +102,9 @@ async function LoadMetaData()
 
 async function GetAllJsonsInFolder()
 {
-  return LoadMetaData();
+  await new Promise((resolve) => { readCSVFile().then(() => { resolve(); }); });
+
+  return LoadLatestMetaData();
 }
 
 async function isJsonWithImage(url) 
@@ -130,12 +191,6 @@ async function GetJsonFromURL(url)
 
 }
 
-const TEMP = true;
-
-async function GetTEMP()
-{
-  return TEMP;
-}
-
 //export default MetaMaskButtonClicked;
 export default GetAllJsonsInFolder;
+export const companyData2 = 'test';
