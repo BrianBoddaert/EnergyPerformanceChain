@@ -20,7 +20,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x71bC9D2DD32C5b1c4FFAedBa5350EE348085fC70' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x290dF5D82Ed2076ddfc6648d225fA21b3bEfaE30' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -30,11 +30,27 @@ web3.eth.defaultAccount = account.address;
 //CID vars
 let imgFolderCID = "";
 let dataFolderCID = "";
-let date = "202305" //set it every time //TODO: create new folders with Data + date AND Images + date and delete the folders at the very end after minting
+let date = "";
 let companyData = [];
 let averageUsage = 0;
 let averageGreen = 0;
 let averageSharing = 0;
+let imageFolder = '';
+let dataFolder = '';
+
+const updateCurrentDate = async () =>
+{
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1; //Adding one coz months are zero-based
+  
+  //Adding 0 to the front of single digit months
+  const formattedMonth = month < 10 ? `0${month}` : month;
+  
+  const formattedDate = `${year}${formattedMonth}`;
+  console.log(formattedDate);
+  date = formattedDate;
+}
 
 const readCSVFileAndRegisterCompanies = async () =>
 {
@@ -85,7 +101,41 @@ const calculateAverageValues = async () =>
 
 }
 
-const createImage = async (_id) => {
+const createFolders = async () =>
+{
+  imageFolder =  'Images' + date;
+  let folderPath = path.join(__dirname, '../', imageFolder);
+
+  fs.mkdir(folderPath, { recursive: true }, (err) =>
+  {
+    if (err)
+    {
+      console.error('An error occurred while creating the images folder:', err);
+    }
+    else
+    {
+      console.log('Images folder created successfully!');
+    }
+  });
+
+  dataFolder =  'Data' + date;
+  folderPath = path.join(__dirname, '../', dataFolder);
+
+  fs.mkdir(folderPath, { recursive: true }, (err) =>
+  {
+    if (err)
+    {
+      console.error('An error occurred while creating the data folder:', err);
+    }
+    else
+    {
+      console.log('Data folder created successfully!');
+    }
+  });
+}
+
+const createImage = async (_id) =>
+{
   const midRange = 0.5;
   const colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
   const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
@@ -150,14 +200,14 @@ const createImage = async (_id) => {
   ]);
 
   // Save the image to a file with a transparent background
-  const outputPath = path.join(__dirname, '../Images' + date, _id + date + '.png');
+  const outputPath = path.join(__dirname, '../' + imageFolder, _id + date + '.png');
   await image.png().toFile(outputPath);
 };
 
 const pinImagesToPinata = async () =>
 {
   const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-  const src = '../Images' + date;
+  const src = '../' + imageFolder;
 
   try
   {
@@ -208,15 +258,19 @@ const createMetadata = async (_id) => {
   const metadataJson = JSON.stringify(metadata);
 
   // Define the file path and name
-  const filePath = '../Data' + date + '/' + _id + date + '.json';
+  const filePath = '../' + dataFolder + '/' + _id + date + '.json';
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) =>
+  {
     // Write the metadata JSON to a file
-    fs.writeFile(filePath, metadataJson, (err) => {
-      if (err) {
+    fs.writeFile(filePath, metadataJson, (err) =>
+    {
+      if (err)
+      {
         reject(err);
-      } else {
-        console.log(`Metadata file created in ${filePath}!`);
+      }
+      else
+      {
         resolve();
       }
     });
@@ -226,7 +280,7 @@ const createMetadata = async (_id) => {
 const pinMetaDataToPinata = async () =>
 {
   const pinataURL = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
-  const src = '../Data' + date;
+  const src = '../' + dataFolder;
 
   try {
     const { dirs, files } = await rfs.read(src);
@@ -302,8 +356,44 @@ const mintNFTs = async () =>
   });
 };
 
+const deleteFolders = async () =>
+{
+
+  let folderPath = '../' + imageFolder;
+
+  fs.rm(folderPath, { recursive: true }, (error) =>
+  {
+    if (error)
+    {
+      console.error('Error deleting images folder:', error);
+    }
+    else
+    {
+      console.log('Images folder deleted successfully.');
+    }
+  });
+
+  folderPath = '../' + dataFolder;
+
+  fs.rm(folderPath, { recursive: true }, (error) =>
+  {
+    if (error)
+    {
+      console.error('Error deleting data folder:', error);
+    }
+    else
+    {
+      console.log('Data folder deleted successfully.');
+    }
+  });
+
+}
+
 const mainFunction = async () =>
 {
+  //Set Date
+  await new Promise((resolve) => { updateCurrentDate().then(() => { resolve(); }); });
+
   //Reading the CompanyInfo.csv file and registering/updating the companies to the smart contract
   await new Promise((resolve) => { readCSVFileAndRegisterCompanies().then(() => { resolve(); }); });
   
@@ -312,6 +402,9 @@ const mainFunction = async () =>
 
   //Creating images in the ../imgFolder for each company based on smart contract read values
   const imagePromises = [];
+
+  //Created folders for both images and data (metadata)
+  await new Promise((resolve) => { createFolders().then(() => { resolve(); }); });
   
   for (let i = 1; i <= companyData.length - 1; i++)
   {
@@ -346,6 +439,10 @@ const mainFunction = async () =>
     
       //Minting the NFT's for all registered companies
       await new Promise((resolve) => { setTimeout(async () => { await mintNFTs(); resolve(); }, 10000);});
+
+      //Deleting folders after minting (all the needed information is on IPFS/Smart contract)
+      await new Promise((resolve) => { deleteFolders().then(() => { resolve(); }); });
+      
     } 
     catch (error)
     {
