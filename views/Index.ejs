@@ -1,0 +1,92 @@
+<html lang="en">
+	<TITLE>EPChain</TITLE>
+	<head>
+		<link rel="stylesheet" href="Styles.css">
+	</head>
+<body>
+	<!-- HEADER -->
+ 	<div class="Main">
+      	<img class="headerBackgroundImage" src='Images/HeaderBackground.png'></img>
+	<div class="headerContent">
+     	<div class="headerImage">
+        	<img src='/Images/LogoTransp.png' />
+    	</div>
+         	<h3 class="headerTitle">Fair Energy Certification</h3>
+    	</div>
+    	<div class="buttonsholder">
+        	<a href="/"><button>Dashboard</button></a>
+        	<a href="/about"><button>About us</button></a>
+        	<a href="/register"><button>Register</button></a>
+    	</div>
+	</div>	
+
+	<!-- TABLE -->
+	<table class="table">
+		<thead>
+		<tr>
+			<th></th>
+			<th class="filter selectedColumn">
+			<select value={selectedOption} id="selectOption">
+				<option value="overall">Overall</option>
+				<option value="energyEfficiency">Consumption</option>
+				<option value="energyGreen">Green</option>
+				<option value="energySharing">Sharing</option>
+			</select>
+			</th>
+			<th class="companyHead filter selectedColumn">Company name</th>
+			<th class="mainTableHead">CP Token</th>
+		</tr>
+		</thead>
+    <tbody>
+		<% let count = 1; %>
+		<% companyData.forEach(json => { %>
+            <tr>
+                <td><%= count %></td>
+                <td class="dataCell"><%= json.attributes[0].EnergyUsage %></td>
+                <td><%= json.name %></td>
+                <td><img src="<%= json.image %>"/></td>
+            </tr>
+			<% count++; %>
+        <% }) %>
+    </tbody>
+	</table>
+</body>
+
+<script>
+    // Get the select element
+    const selectElement = document.getElementById('selectOption');
+
+    // Add event listener to handle select change
+    selectElement.addEventListener('change', (event) => {
+        const selectedOption = event.target.value;
+
+        // Get all data cells
+        const dataCells = document.querySelectorAll('.dataCell');
+
+        // Update the data cells based on the selected option
+        dataCells.forEach((dataCell, index) => {
+            const json = JSON.parse('<%- JSON.stringify(companyData) %>');
+            const attributes = json[index].attributes[0];
+
+            switch (selectedOption) {
+                case 'overall':
+                    dataCell.textContent = attributes.EnergyUsage;
+                    break;
+                case 'energyEfficiency':
+                    dataCell.textContent = attributes.EnergyUsage;
+                    break;
+                case 'energyGreen':
+                    dataCell.textContent = attributes.EnergyGreen;
+                    break;
+                case 'energySharing':
+                    dataCell.textContent = attributes.EnergySharing;
+                    break;
+                default:
+                    break;
+            }
+        });
+    });
+</script>
+
+</html>
+
