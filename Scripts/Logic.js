@@ -111,6 +111,12 @@ async function GetAllJsonsInFolder()
   return LoadLatestMetaData();
 }
 
+async function GetRegisteredCompanies()
+{
+
+}
+
+
 module.exports = {
   companyData,
   CIDdata,
