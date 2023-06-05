@@ -18,7 +18,7 @@ app.use(express.static(__dirname + '/Styles'));
 app.listen(3000, () => {
     console.log(`Server NOW running on port 3000`);
 });
-  
+
 app.get('/', async (req, res) => {
     console.log("This gets called");
     allJsonDataInFolder = await logic.GetAllJsonsInFolder();
@@ -63,45 +63,16 @@ app.get('/update', async (req, res) => {
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.post('/register', urlencodedParser, function (req, res) {
-
-    // Read the existing JSON file
-    fs.readFile('RegisteredCompanies.json', 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            // Handle error, e.g., send an error response
-            res.sendStatus(500);
-            return;
+app.post('/register', urlencodedParser, async function (req, res) {
+    try {
+        const result = await logic.UploadToJson(req, res);
+        if (result) {
+          res.send('Successfully registered!');
         }
-
-        try {
-            // Parse the existing JSON data into a JavaScript object
-            const jsonData = JSON.parse(data);
-
-            // Add the req.body data to the desired list in the JavaScript object
-            jsonData.push(req.body);
-
-            // Convert the updated JavaScript object back to JSON
-            const updatedJsonData = JSON.stringify(jsonData);
-
-            // Write the updated JSON data back to the file
-            fs.writeFile('RegisteredCompanies.json', updatedJsonData, (err) => {
-                if (err) {
-                    console.error(err);
-                    // Handle error, e.g., send an error response
-                    res.sendStatus(500);
-                } else {
-                    console.log('Data added to list and saved successfully');
-                    // Send a success response
-                    res.send('Successfully registered!');
-                }
-            });
-        } catch (error) {
-            console.error('Failed to parse JSON:', error);
-            // Handle error, e.g., send an error response
-            res.sendStatus(500);
-        }
-    });
+      } catch (error) {
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+      }
 });
 
 app.post('/update', urlencodedParser, function (req, res) {
