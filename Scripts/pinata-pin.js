@@ -22,7 +22,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x258C79E66E83AF4037b26E2704467689Ad870fd9' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x05Aae7227b2CF0C69020E365A02b43e68c10F8B4' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -156,7 +156,7 @@ const createImage = async (_id) =>
   const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
   const colorVariable3 = 1 - ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
 
-  const imageSize = 200; // Size of the image in pixels
+  const imageSize = 1000; // Size of the image in pixels
   const radius = imageSize / 2;
   const anglePerPart = (2 * Math.PI) / 3;
 
