@@ -35,7 +35,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.post('/register', urlencodedParser, function (req, res) {
 
     // Read the existing JSON file
-    fs.readFile('RegisteredCompanies', 'utf8', (err, data) => {
+    fs.readFile('RegisteredCompanies.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             // Handle error, e.g., send an error response
@@ -54,7 +54,7 @@ app.post('/register', urlencodedParser, function (req, res) {
             const updatedJsonData = JSON.stringify(jsonData);
 
             // Write the updated JSON data back to the file
-            fs.writeFile('RegisteredCompanies', updatedJsonData, (err) => {
+            fs.writeFile('RegisteredCompanies.json', updatedJsonData, (err) => {
                 if (err) {
                     console.error(err);
                     // Handle error, e.g., send an error response
