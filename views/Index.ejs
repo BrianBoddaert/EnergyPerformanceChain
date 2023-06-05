@@ -2,6 +2,8 @@
 	<TITLE>EPChain</TITLE>
 	<head>
 		<link rel="stylesheet" href="Styles.css">
+		<link rel="stylesheet" href="Header.css">
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	</head>
 <body>
 	<!-- HEADER -->
@@ -25,9 +27,8 @@
 		<thead>
 		<tr>
 			<th></th>
-			<th class="filter selectedColumn">
+			<th class="filter selectedColumn" id="energyOptionHeader">
 			<select value={selectedOption} id="selectOption">
-				<option value="overall">Overall</option>
 				<option value="energyEfficiency">Consumption</option>
 				<option value="energyGreen">Green</option>
 				<option value="energySharing">Sharing</option>
@@ -38,54 +39,99 @@
 		</tr>
 		</thead>
     <tbody>
-		<% let count = 1; %>
-		<% companyData.forEach(json => { %>
-            <tr>
-                <td><%= count %></td>
-                <td class="dataCell"><%= json.attributes[0].EnergyUsage %></td>
-                <td><%= json.name %></td>
-                <td><img src="<%= json.image %>"/></td>
-            </tr>
-			<% count++; %>
-        <% }) %>
-    </tbody>
+		<!-- Is generated using js below -->
+	</tbody>
 	</table>
 </body>
 
 <script>
-    // Get the select element
+
+// ----- TABLE STUFF -------
+	GetTableData();
+
     const selectElement = document.getElementById('selectOption');
-
-    // Add event listener to handle select change
     selectElement.addEventListener('change', (event) => {
-        const selectedOption = event.target.value;
+		GetTableData();
+	});
 
-        // Get all data cells
-        const dataCells = document.querySelectorAll('.dataCell');
+	function GetTableData() {
+		var selectedOption = $('#selectOption').val();
+		$.ajax({
+			url: '/sortCompanyData',
+			method: 'GET',
+			data: {
+				selectedOption: selectedOption
+			},
+			success: function(sortedData) {
+				// Update the table with the sorted data
+				console.log("sorted: " + sortedData)
+				updateTable(sortedData);
+			},
+			error: function(err) {
+				console.error('Error:', err);
+			}
+		});
+	}
 
-        // Update the data cells based on the selected option
-        dataCells.forEach((dataCell, index) => {
-            const json = JSON.parse('<%- JSON.stringify(companyData) %>');
-            const attributes = json[index].attributes[0];
+	function updateTable(sortedData) {
+		var tableBody = $('table.table tbody');
+		tableBody.empty();
+		console.log("updating table");
+		$.each(sortedData, function(index, data) {
+			var rowHtml = '<tr class="' + (index % 2 === 0 ? 'rowEven' : 'rowOdd') + '">' +
+				'<td>' + (index + 1) + '</td>' +
+				'<td class="dataCell">' + data.attributes[0].EnergyUsage + '</td>' +
+				'<td class="makeClicky" onClick="handleButtonClick(' + index + ')"> ' + data.name + '</td>' +
+				'<td><img src="' + data.image + '"/></td>' +
+				'</tr>';
+			tableBody.append(rowHtml);
+		});
 
-            switch (selectedOption) {
-                case 'overall':
-                    dataCell.textContent = attributes.EnergyUsage;
-                    break;
-                case 'energyEfficiency':
-                    dataCell.textContent = attributes.EnergyUsage;
-                    break;
-                case 'energyGreen':
-                    dataCell.textContent = attributes.EnergyGreen;
-                    break;
-                case 'energySharing':
-                    dataCell.textContent = attributes.EnergySharing;
-                    break;
-                default:
-                    break;
-            }
-        });
-    });
+    	const selectedOption = event.target.value;
+    	// Get all data cells
+    	const dataCells = document.querySelectorAll('.dataCell');
+    	// Update the data cells based on the selected option
+    	dataCells.forEach((dataCell, index) => {
+			const json = JSON.parse('<%- JSON.stringify(companyData) %>');
+			const attributes = json[index].attributes[0];
+
+			switch (selectedOption) {
+				case 'overall':
+					dataCell.textContent = attributes.EnergyUsage;
+					break;
+				case 'energyEfficiency':
+					dataCell.textContent = attributes.EnergyUsage;
+					break;
+				case 'energyGreen':
+					dataCell.textContent = attributes.EnergyGreen;
+					break;
+				case 'energySharing':
+					dataCell.textContent = attributes.EnergySharing;
+					break;
+				default:
+					break;
+			}
+    	});
+	}
+
+	function handleButtonClick(index){
+		$.ajax({
+			url: '/getSortCompanyData',
+			method: 'GET',
+			data: {
+			},
+			success: function(sortedData) {
+				// Update the table with the sorted data
+				console.log("sorted: " + sortedData[index])
+				window.location.href = '/details?data=' + encodeURIComponent(JSON.stringify(sortedData[index]));
+			},
+			error: function(err) {
+				console.error('Error:', err);
+			}
+		});
+
+  	}
+
 </script>
 
 </html>

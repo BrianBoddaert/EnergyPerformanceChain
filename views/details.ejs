@@ -1,0 +1,54 @@
+<html>
+<head>
+  <title>Details Page</title>
+  <link rel="stylesheet" href="Header.css">
+  <link rel="stylesheet" href="Details.css">
+</head>
+<body>
+	<!-- HEADER -->
+    <div class="Main">
+        <img class="headerBackgroundImage" src='Images/HeaderBackground.png'></img>
+  <div class="headerContent">
+       <div class="headerImage">
+          <img src='/Images/LogoTransp.png' />
+      </div>
+           <h3 class="headerTitle">Fair Energy Certification</h3>
+      </div>
+      <div class="buttonsholder">
+          <a href="/"><button>Dashboard</button></a>
+          <a href="/about"><button>About us</button></a>
+          <a href="/register"><button>Register</button></a>
+      </div>
+  </div>	
+
+    <div Class="Container">
+        <div Class="Content">
+          <h2 id='companyname'><%= data.name %></h2>
+  
+          <!-- {/* DESCRIPTION */} -->
+          <div Class="Description">
+            <p><%= data.description %></p>
+          </div>
+  
+          <!-- {/* NFT LIST */} -->
+          <h4>EPCoins</h4>
+          <div id='parent-container' Class="Progressbar">
+            <img class="ProgressbarItem" src="Images/NFT.png" />
+            <img class="ProgressbarItem" src="Images/NFT.png" />
+            <img class="ProgressbarItem" src="Images/NFT.png" />
+          </div>
+  
+          <!-- {/* PROGRESS GRAPH */}   -->
+          <div Class="ProgressChart">
+            <h4>Progress chart</h4>
+            <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
+            <button classname="selectedButton" id='consumption' onClick="selectNewChart(consumption)">Consumption</button>
+            <button id='green' onClick="selectNewChart(green)">Green</button>
+            <button id='sharing' onClick="selectNewChart(sharing)">Sharing</button>
+          </div>
+  
+        </div>
+      </div>
+
+</body>
+</html>
