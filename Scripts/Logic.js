@@ -111,14 +111,28 @@ async function GetAllJsonsInFolder()
   return LoadLatestMetaData();
 }
 
+function SortCompanyData(data, selectedOption) {
+  data.sort(function(a, b) {
+    if (selectedOption === 'energyEfficiency') {
+      return b.attributes[0].EnergyUsage - a.attributes[0].EnergyUsage;
+    } else if (selectedOption === 'energyGreen') {
+      return b.attributes[0].EnergyGreen - a.attributes[0].EnergyGreen;
+    } else if (selectedOption === 'energySharing') {
+      return b.attributes[0].EnergySharing - a.attributes[0].EnergySharing;
+    }
+  });
+
+  return data;
+}
+
 async function GetRegisteredCompanies()
 {
 
 }
 
-
 module.exports = {
   companyData,
   CIDdata,
-  GetAllJsonsInFolder
+  GetAllJsonsInFolder,
+  SortCompanyData
 }
