@@ -111,14 +111,54 @@ async function GetAllJsonsInFolder()
   return LoadLatestMetaData();
 }
 
-async function GetRegisteredCompanies()
-{
+async function UploadToJson(req, res) {
+  return new Promise((resolve, reject) => {
+    // Read the existing JSON file
+    fs.readFile('RegisteredCompanies.json', 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+        reject(false);
+      }
 
+      try {
+        // Parse the existing JSON data into a JavaScript object
+        const jsonData = JSON.parse(data);
+
+        // Add the req.body data to the desired list in the JavaScript object
+        jsonData.push(req.body);
+
+        // Convert the updated JavaScript object back to JSON
+        const updatedJsonData = JSON.stringify(jsonData);
+
+        // Write the updated JSON data back to the file
+        fs.writeFile('RegisteredCompanies.json', updatedJsonData, (err) => {
+          if (err) {
+            console.error(err);
+            // Handle error, e.g., send an error response
+            res.sendStatus(500);
+            reject(false);
+          } else {
+            console.log('Data added to list and saved successfully');
+            // Send a success response
+            resolve(true);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+        reject(false);
+      }
+    });
+  });
 }
 
 
 module.exports = {
   companyData,
   CIDdata,
-  GetAllJsonsInFolder
+  GetAllJsonsInFolder,
+  UploadToJson
 }
