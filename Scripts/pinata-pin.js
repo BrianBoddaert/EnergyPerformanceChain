@@ -9,6 +9,8 @@ const rfs = require("recursive-fs");
 const basePathConverter = require("base-path-converter");
 const axios = require('axios');
 const sharp = require('sharp');
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 //Pinata details
 const JWT = process.env.JWT
@@ -20,7 +22,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x5d13B174287041AB93073d92b279970b8e554C0c' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x258C79E66E83AF4037b26E2704467689Ad870fd9' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -52,36 +54,49 @@ const updateCurrentDate = async () =>
   date = formattedDate;
 }
 
-const readCSVFileAndRegisterCompanies = async () =>
-{
-  //Pushing one here for the ignored 0 index so we start from 1 in the for loop
-  companyData.length = 0;
-  companyData.push([ 0, 0, "0x0" ]);
+const readJSONFileAndRegisterCompanies = async () => {
+  try {
+    // Pushing one here for the ignored 0 index so we start from 1 in the for loop
+    companyData.length = 0;
+    companyData.push([0, 0, "0x0"]);
 
-  const stream = fs.createReadStream('../CompanyInfo.csv')
-    .pipe(csv());
+    // Read the JSON file
+    const data = await readFileAsync('../RegisteredCompanies.json', 'utf8');
+    const jsonData = JSON.parse(data);
 
-  for await (const row of stream) {
-    const { ID, UsageValue, GreenValue, SharingValue, Address, CompanyName } = row;
-    companyData.push([ID, UsageValue, GreenValue, SharingValue, Address, CompanyName]);
+    // Iterate over each object in the JSON data
+    for (const [index, obj] of jsonData.entries())
+    {
+      const ID = index + 1;
+      const Address = obj.metamaskaddressstorage;
 
-    await new Promise((resolve, reject) => {
-      EPChainContract.methods.registerCompany(ID, Address).send({
-        from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
-        gas: 3000000,
-      })
-      .on('receipt', (receipt) => {
-        // Transaction completed successfully
-        resolve(receipt);
-      })
-      .on('error', (error) => {
-        // Transaction failed
-        reject(error);
+      await new Promise((resolve, reject) => {
+        EPChainContract.methods.registerCompany(ID, Address).send({
+          from: '0x972B4B46e0baBb59fE2cA41ef3D6aBFA2741623d',
+          gas: 3000000,
+        })
+          .on('receipt', (receipt) => {
+            // Transaction completed successfully
+            const UsageValue = obj.energyspent;
+            const GreenValue = obj.energygreen;
+            const SharingValue = obj.energyshared;
+            const CompanyName = obj.cname;
+
+            // Push the data to the companyData array
+            companyData.push([ID, UsageValue, GreenValue, SharingValue, Address, CompanyName]);
+            resolve(receipt);
+          })
+          .on('error', (error) => {
+            // Transaction failed
+            reject(error);
+          });
       });
-    });
-  }
+    }
 
-  console.log('CSV file processed');
+    console.log('JSON file processed');
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const calculateAverageValues = async () =>
@@ -417,7 +432,6 @@ const deleteFolders = async () =>
       console.log('Data folder deleted successfully.');
     }
   });
-
 }
 
 const mainFunction = async () =>
@@ -425,8 +439,8 @@ const mainFunction = async () =>
   //Set Date
   await new Promise((resolve) => { updateCurrentDate().then(() => { resolve(); }); });
 
-  //Reading the CompanyInfo.csv file and registering/updating the companies to the smart contract
-  await new Promise((resolve) => { readCSVFileAndRegisterCompanies().then(() => { resolve(); }); });
+  //Reading the RegisteredCompanies.json file and registering/updating the companies to the smart contract
+  await new Promise((resolve) => { readJSONFileAndRegisterCompanies().then(() => { resolve(); }); });
   
   //Get the average scores (usage, shared, etc...)
   await new Promise((resolve) => { calculateAverageValues().then(() => { resolve(); }); });
