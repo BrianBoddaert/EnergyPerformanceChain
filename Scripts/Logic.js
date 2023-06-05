@@ -121,7 +121,6 @@ async function UploadToJson(req, res) {
         res.sendStatus(500);
         reject(false);
       }
-
       try {
         // Parse the existing JSON data into a JavaScript object
         const jsonData = JSON.parse(data);
@@ -155,10 +154,24 @@ async function UploadToJson(req, res) {
   });
 }
 
+function SortCompanyData(data, selectedOption) {
+  data.sort(function(a, b) {
+    if (selectedOption === 'energyEfficiency') {
+      return b.attributes[0].EnergyUsage - a.attributes[0].EnergyUsage;
+    } else if (selectedOption === 'energyGreen') {
+      return b.attributes[0].EnergyGreen - a.attributes[0].EnergyGreen;
+    } else if (selectedOption === 'energySharing') {
+      return b.attributes[0].EnergySharing - a.attributes[0].EnergySharing;
+    }
+  });
+
+  return data;
+}
 
 module.exports = {
   companyData,
   CIDdata,
   GetAllJsonsInFolder,
-  UploadToJson
+  UploadToJson,
+  SortCompanyData
 }

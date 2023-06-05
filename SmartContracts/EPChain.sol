@@ -27,8 +27,8 @@ contract EPChain is ERC721, Ownable
     }
     
     //ID to company
-    mapping(uint => Company) private companies;
-    uint private amountOfCompanies;
+    mapping(uint => Company) public companies;
+    uint public amountOfCompanies;
 
     //Date to BaseURI
     mapping(uint => string) private baseURIs;
