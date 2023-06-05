@@ -1,0 +1,66 @@
+<html lang="en">
+    <TITLE>EPChain Update</TITLE>
+	<head>
+		<link rel="stylesheet" href="Styles.css">
+	</head>
+    <body>
+        <div className={`Container ${styles.Container}`}>
+            <Header />
+            <h2>Update</h2><br/>
+            <form id="UpdateForm" method="POST" action="/update" enctype="application/x-www-form-urlencoded">    
+                <label>Company name (has to match registered company):</label><br/>
+                <input type="text" id="cname" name="cname"/><br/>
+                <label>This months energy spending:</label><br/>
+                <input type="number" id="energyspent" name="energyspent"/><p> joule</p><br/>
+                <label>This months energy shared:</label><br/>
+                <input type="number" id="energyshared" name="energyshared"/><p> joule</p><br/>
+                <label>This months green energy used:</label><br/>
+                <input type="number" id="energygreen" name="energygreen"/><p> joule</p><br/><br/>
+                <input type="submit" id="submitButton" value="Submit"/><br/>
+            </form>
+            
+        </div>
+    </body>
+    
+
+    <script>
+      function handleLoginMetaDataButtonClick()
+      {
+          const metaMaskButton = document.getElementById('metamaskbutton');
+          if (!window.ethereum)
+          {
+            metaMaskButton.innerText = 'No access to MetaMask in your browser';
+            return;
+          }
+          else
+          {
+              loginWithMetaMask();
+          }
+      };
+
+      async function loginWithMetaMask()
+      {
+          const metaMaskButton = document.getElementById('metamaskbutton');
+          const hiddenText = document.getElementById('hiddenText');
+          const metaMaskAddressText = document.getElementById('metamaskaddresstext');
+          const metaMaskAddressStorage = document.getElementById('metamaskaddressstorage');
+
+          const accounts = await window.ethereum.request({method: 'eth_requestAccounts'})
+          .catch((e) => {
+              return;
+          })
+          if (!accounts)
+          {
+              return;
+          }
+
+          window.userwalletAddress = accounts[0];
+          hiddenText.removeAttribute("hidden");
+          metaMaskAddressText.innerText = accounts[0];
+          metaMaskAddressStorage.value = accounts[0];
+          metaMaskButton.innerText = 'Metamask is linked';
+      }
+    
+
+    </script>
+</html>

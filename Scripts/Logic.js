@@ -125,6 +125,11 @@ function SortCompanyData(data, selectedOption) {
   return data;
 }
 
+async function GetRegisteredCompanies()
+{
+
+}
+
 module.exports = {
   companyData,
   CIDdata,
