@@ -1,11 +1,13 @@
 {
   "dependencies": {
+    "axios": "^1.4.0",
     "csv-parse": "^5.4.0",
     "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "jimp": "^0.22.8",
+    "node-fetch": "^3.3.1",
     "recursive-fs": "^2.1.0",
     "sharp": "^0.32.1"
   }

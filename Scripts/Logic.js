@@ -1,32 +1,41 @@
 const fs = require("fs");
 const csv = require('csv-parser');
 
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
+
 const provider = 'https://mainnet.infura.io/v3/fb039c9592f7494092d531602fb06e12';
 const https = require('https');
+const path = require("path");
 
-const companyData = [];
-const CIDdata = [];
+let companyData = [];
+let CIDdata = [];
 
-const readCSVFile = async () =>
+async function readCSVFile()
 {
+
   companyData.length = 0;
+  CIDdata.length = 0;
 
-  const stream = fs.createReadStream('CompanyInfo.csv')
-    .pipe(csv());
+  const data = await readFileAsync(path.resolve(__dirname, '..') +'/RegisteredCompanies.json', 'utf8');
+  const jsonData = JSON.parse(data);
 
-  for await (const row of stream) {
-    const {ID,UsageValue,GreenValue,SharingValue,Address,CompanyName} = row;
-    companyData.push([ID,CompanyName]);
+  // Iterate over each object in the JSON data
+  for (const [index, obj] of jsonData.entries())
+  {
+    const CompanyName = obj.cname;
+
+    companyData.push([index,CompanyName]);
   }
 
   const streamCID = fs.createReadStream('CIDs.csv')
-    .pipe(csv());
+  .pipe(csv());
 
   for await (const row of streamCID) {
     const {Date,CID} = row;
     CIDdata.push([Date,CID]);
   }
-};
+}
 
 async function LoadLatestMetaData()
 {

@@ -32,10 +32,10 @@
   
           <!-- {/* NFT LIST */} -->
           <h4>EPCoins</h4>
-          <div id='parent-container' Class="Progressbar">
+          <div id='NFTHistory' Class="Progressbar">
+            <!-- <img class="ProgressbarItem" src="Images/NFT.png" />
             <img class="ProgressbarItem" src="Images/NFT.png" />
-            <img class="ProgressbarItem" src="Images/NFT.png" />
-            <img class="ProgressbarItem" src="Images/NFT.png" />
+            <img class="ProgressbarItem" src="Images/NFT.png" /> -->
           </div>
   
           <!-- {/* PROGRESS GRAPH */}   -->
@@ -49,6 +49,76 @@
   
         </div>
       </div>
-
 </body>
+
+<script>
+
+const getCompanyHistoryData = async () =>
+{
+  document.getElementById('NFTHistory').innerHTML = "";
+  
+  let companyID = -1;
+
+  let companyName = '<%= data.name %>'
+  let companyData = '<%= companyData %>';
+  let CIDdata = '<%= CID %>';
+
+  console.log(CIDdata);
+
+  let companyDataArray = companyData.split(',');
+  companyData = [];
+  for (let i = 0; i < companyDataArray.length; i += 2) {
+    let index = companyDataArray[i];
+    let string = companyDataArray[i + 1];
+    companyData.push([index, string]);
+  }
+
+  let CIDArray = CIDdata.split(',');
+  CIDdata = [];
+  for (let i = 0; i < CIDArray.length; i += 2) {
+      let date = CIDArray[i];
+      let CID = CIDArray[i + 1];
+      CIDdata.push([date, CID]);
+  }
+
+  for await (const data of companyData) {
+    if (data[1] == companyName)
+    {
+      companyID = data[0];
+    }
+  }
+
+  for await (const data of CIDdata) {
+    const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
+    let img = getImageFromJSON(metadata);
+
+    console.log("hoi");
+
+    img.then((result) => {
+        const imageElement = document.createElement("img");
+        imageElement.src = result;
+        imageElement.className = "ProgressbarItem";
+        // imageElement.onclick ADD LINK TO NFT
+        document.getElementById('NFTHistory').appendChild(imageElement);
+    });
+  }
+};
+
+async function getImageFromJSON(jsonLink) {
+  try {
+    const response = await fetch(jsonLink);
+    const jsonData = await response.json();
+    
+    const imageUrl = 'https://blush-worldwide-swift-945.mypinata.cloud/ipfs/' + jsonData.image.replace(/^ipfs:\/\//, '');
+
+    return imageUrl;
+  } catch (error) {
+    console.error("Error fetching JSON data:", error);
+    return null;
+  }
+}
+
+
+getCompanyHistoryData();
+</script>
 </html>

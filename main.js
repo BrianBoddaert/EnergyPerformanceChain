@@ -44,7 +44,7 @@ app.get('/details', (req, res) => {
     const data = JSON.parse(req.query.data);
   
     // Render the EJS template with the data
-    res.render('details', { data });
+    res.render('details', { data: data, companyData: logic.companyData, CID: logic.CIDdata});
   });
 
 // app.get('/register', async (req, res) => {
