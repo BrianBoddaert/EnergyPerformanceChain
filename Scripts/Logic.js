@@ -163,6 +163,65 @@ async function UploadToJson(req, res) {
   });
 }
 
+async function UpdateToJson(req, res) 
+{
+  return new Promise((resolve, reject) => {
+    // Read the existing JSON file
+    fs.readFile('RegisteredCompanies.json', 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+        reject(false);
+      }
+      try {
+        // Parse the existing JSON data into a JavaScript object
+        const jsonData = JSON.parse(data);
+
+        // Find the index of the object with matching "metamaskaddressstorage" value
+        const index = jsonData.findIndex(obj => obj.metamaskaddressstorage === req.body.metamaskaddressstorage);
+
+        if (index !== -1) 
+        {
+
+          // Merge the existing object with the new req.body object
+          const mergedObject = { ...jsonData[index], ...req.body };
+
+          // Replace the object at the found index with the merged object
+          jsonData[index] = mergedObject;
+
+          // Convert the updated JavaScript object back to JSON
+          const updatedJsonData = JSON.stringify(jsonData);
+
+          // Write the updated JSON data back to the file
+          fs.writeFile('RegisteredCompanies.json', updatedJsonData, (err) => {
+            if (err) {
+              console.error(err);
+              // Handle error, e.g., send an error response
+              res.sendStatus(500);
+              reject(false);
+            } else {
+              console.log('Object replaced and saved successfully');
+              // Send a success response
+              resolve(true);
+            }
+          });
+        } else {
+          console.log('Object not found');
+          // Handle object not found, e.g., send a not found response
+          res.sendStatus(404);
+          reject(false);
+        }
+      } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+        reject(false);
+      }
+    });
+  });
+}
+
 function SortCompanyData(data, selectedOption) {
   data.sort(function(a, b) {
     if (selectedOption === 'energyEfficiency') {
@@ -177,10 +236,32 @@ function SortCompanyData(data, selectedOption) {
   return data;
 }
 
+async function IsWalletIDRegistered(address)
+{
+  const filename = "RegisteredCompanies.json";
+  try {
+    // Read the JSON file
+    const data = fs.readFileSync(filename, 'utf8');
+    
+    // Parse the JSON data
+    const list = JSON.parse(data);
+    
+    // Check if any object in the list matches the address
+    const matchedObject = list.find(obj => obj.metamaskaddressstorage === address);
+    // Return the matched object or null if not found
+    return matchedObject || null;
+  } catch (error) {
+    console.error('Error reading or parsing JSON file:', error);
+    return null;
+  }
+}
+
 module.exports = {
   companyData,
   CIDdata,
   GetAllJsonsInFolder,
   UploadToJson,
-  SortCompanyData
+  UpdateToJson,
+  SortCompanyData,
+  IsWalletIDRegistered
 }

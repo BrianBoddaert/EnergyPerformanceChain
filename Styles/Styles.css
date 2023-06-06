@@ -99,3 +99,12 @@ body{
       display:inline
     }
     
+    .biggerTextBox
+    {
+      height:60px;
+    }
+
+    #description
+    {
+      resize: none;
+    }
