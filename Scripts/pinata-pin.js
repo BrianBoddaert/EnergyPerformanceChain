@@ -22,7 +22,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x05Aae7227b2CF0C69020E365A02b43e68c10F8B4' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0x558b10458e7DaD251fDcff0e9e58696dB6538AC3' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet

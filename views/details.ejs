@@ -96,7 +96,7 @@ const getCompanyHistoryData = async () =>
         const imageElement = document.createElement("img");
         imageElement.src = result;
         imageElement.className = "ProgressbarItem";
-        // imageElement.onclick ADD LINK TO NFT
+        imageElement.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0x558b10458e7DaD251fDcff0e9e58696dB6538AC3/instance/" + companyID + data[0] + "/token-transfers") };
         document.getElementById('NFTHistory').appendChild(imageElement);
     });
   }
@@ -116,6 +116,12 @@ async function getImageFromJSON(jsonLink) {
   }
 }
 
+function handleImgClick(item)
+{
+  const id = item.token.match(/\/(\d+)\.png$/)[1];
+  let NFTMintURL = "https://volta-explorer.energyweb.org/token/0x05Aae7227b2CF0C69020E365A02b43e68c10F8B4/instance/" + id + "/token-transfers"; //TODO: make a global var out of the smart contract address and access here
+  window.open(NFTMintURL);
+}
 
 getCompanyHistoryData();
 </script>
