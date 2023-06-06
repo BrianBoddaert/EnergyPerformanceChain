@@ -5,7 +5,7 @@
 		<link rel="stylesheet" href="Header.css">
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	</head>
-<body>
+<body onload="restoreSelectedOption()">
 	<!-- HEADER -->
  	<div class="Main">
       	<img class="headerBackgroundImage" src='Images/HeaderBackground.png'></img>
@@ -52,11 +52,29 @@
 
     const selectElement = document.getElementById('selectOption');
     selectElement.addEventListener('change', (event) => {
+    	saveSelectedOption(); // Save the selected option to sessionStorage
 		GetTableData();
 	});
 
+	function saveSelectedOption()
+	{
+    	const selectedOption = $('#selectOption').val();
+    	sessionStorage.setItem('selectedOption', selectedOption);
+  	}
+
+  	function restoreSelectedOption()
+	{
+    	const savedOption = sessionStorage.getItem('selectedOption');
+    	if (savedOption)
+		{
+    		$('#selectOption').val(savedOption); // Set the saved option as the selected value
+			GetTableData();
+    	}
+  	}
+
 	function GetTableData() {
 		var selectedOption = $('#selectOption').val();
+
 		$.ajax({
 			url: '/sortCompanyData',
 			method: 'GET',
@@ -65,7 +83,6 @@
 			},
 			success: function(sortedData) {
 				// Update the table with the sorted data
-				console.log("sorted: " + sortedData)
 				updateTable(sortedData);
 			},
 			error: function(err) {
@@ -77,7 +94,6 @@
 	function updateTable(sortedData) {
 		var tableBody = $('table.table tbody');
 		tableBody.empty();
-		console.log("updating table");
 		$.each(sortedData, function(index, data) {
 			var rowHtml = '<tr class="' + (index % 2 === 0 ? 'rowEven' : 'rowOdd') + '">' +
 				'<td>' + (index + 1) + '</td>' +
@@ -123,7 +139,6 @@
 			},
 			success: function(sortedData) {
 				// Update the table with the sorted data
-				console.log("sorted: " + sortedData[index])
 				window.location.href = '/details?data=' + encodeURIComponent(JSON.stringify(sortedData[index]));
 			},
 			error: function(err) {

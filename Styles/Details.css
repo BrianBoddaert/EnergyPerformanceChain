@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'TitleFont';
+  src: url('/Fonts/PonziHat.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NormalText';
+  src: url('/Fonts/Freshmen.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .Container {
 }
 
@@ -12,34 +26,50 @@
 }
 
 .Description{
-  background-color: rgb(232, 232, 222);
   width: 700px;
   height: 100px;
-  padding: 10px;
   margin-bottom: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-family: NormalText;
+  font-size: 18px;
 }
 
 .Progressbar{
-  background-color: rgb(237, 237, 229);
-  padding-top: 20px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
+  height: 250px;
+}
+
+.ProgressHeader{
+  font-size: 25px;
+  font-family: TitleFont;
+  color: rgb(51, 137, 60);
 }
 
 .ProgressbarItem{
   margin-right: 25px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 60px;
   text-align: center;
+  background-color: rgb(248, 250, 245);
+  border: 2px solid rgb(169, 173, 169);
+  border-radius: 5px;
 }
 
-.ProgressbarItem img{
-  width: 60px;
+.Progressbar img{
+  width: 100px;
+  padding: 50px;
+  height: 100px;
+  padding-bottom: 20px;
+  cursor: pointer;
+}
+
+.Progressbar h2{
+  font-size: 16px;
+  margin: 20px;
+  color: rgb(28, 64, 34);
+  font-family: TitleFont;
 }
 
 .ProgressbarItem p{
@@ -51,11 +81,20 @@
   height: 200px;
 }
 
+.ProgressChart h4{
+  font-size: 25px;
+  font-family: TitleFont;
+  color: rgb(51, 137, 60);
+}
+
 .ProgressChart button{
   margin: 5px;
-  border: 2px solid rgb(92, 156, 102);
-  background-color: rgb(100, 167, 111);
+  margin-top: 0px;
+  border: 2px solid rgb(143, 208, 153);
+  background-color: rgb(158, 212, 167);
   border-radius: 3px;
+  width: 100px;
+  height: 30px;
 }
 
 .nonSelectedButton{
@@ -67,7 +106,22 @@
 
 .selectedButton{
   margin: 5px;
-  border: 2px solid rgb(68, 225, 92) !important;
-  background-color: rgb(104, 218, 123) !important;
+  border: 2px solid rgb(225, 214, 68) !important;
+  background-color: rgb(240, 214, 82) !important;
   border-radius: 3px;
+}
+
+.companyname{
+  font-size: 50px;
+  font-family: TitleFont;
+  color: rgb(51, 137, 60);
+  margin: 0px;
+}
+
+.Line{
+  background-color: rgb(51, 137, 60);
+  height: 10px;
+  border-radius: 10px;
+  width: 30%;
+  margin-bottom: 10px;
 }
