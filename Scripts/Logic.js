@@ -25,7 +25,7 @@ async function readCSVFile()
   {
     const CompanyName = obj.cname;
 
-    companyData.push([index + 1,CompanyName]);
+    companyData.push([index + 1, CompanyName]);
   }
 
   const streamCID = fs.createReadStream('CIDs.csv')

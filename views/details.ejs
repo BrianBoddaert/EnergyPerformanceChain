@@ -110,6 +110,9 @@ const getCompanyHistoryData = async () =>
         div.appendChild(date);
         // imageElement.onclick ADD LINK TO NFT
         document.getElementById('NFTHistory').appendChild(div);
+        imageElement.className = "ProgressbarItem";
+        imageElement.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0x558b10458e7DaD251fDcff0e9e58696dB6538AC3/instance/" + companyID + data[0] + "/token-transfers") };
+        document.getElementById('NFTHistory').appendChild(imageElement);
     });
   }
 
