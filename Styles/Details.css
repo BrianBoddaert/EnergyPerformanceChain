@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'TitleFont';
+  src: url('/Fonts/PonziHat.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NormalText';
+  src: url('/Fonts/Freshmen.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .Container {
 }
 
@@ -17,6 +31,7 @@
   height: 100px;
   padding: 10px;
   margin-bottom: 20px;
+  border-radius: 10px;
 }
 
 .Progressbar{
@@ -70,4 +85,19 @@
   border: 2px solid rgb(68, 225, 92) !important;
   background-color: rgb(104, 218, 123) !important;
   border-radius: 3px;
+}
+
+.companyname{
+  font-size: 50px;
+  font-family: TitleFont;
+  color: rgb(90, 151, 90);
+  margin: 0px;
+}
+
+.Line{
+  background-color: rgb(69, 111, 39);
+  height: 10px;
+  border-radius: 10px;
+  width: 30%;
+  margin-bottom: 10px;
 }
