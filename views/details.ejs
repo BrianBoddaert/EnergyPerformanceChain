@@ -3,6 +3,7 @@
   <title>Details Page</title>
   <link rel="stylesheet" href="Header.css">
   <link rel="stylesheet" href="Details.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 	<!-- HEADER -->
@@ -35,19 +36,19 @@
             non provident, similique sunt in culpa qui officia deserunt 
             mollitia animi, id est laborum et dolorum fuga. Et harum q
           </div>
-  
+
           <!-- {/* NFT LIST */} -->
-          <h4>EPCoins</h4>
+          <h4 Class="ProgressHeader">EPCToken - progression</h4>
           <div id='NFTHistory' Class="Progressbar">
           </div>
   
           <!-- {/* PROGRESS GRAPH */}   -->
           <div Class="ProgressChart">
             <h4>Progress chart</h4>
-            <canvas ref={(ref) => graphRefs.current[0] = ref}></canvas>
-            <button classname="selectedButton" id='consumption' onClick="selectNewChart(consumption)">Consumption</button>
-            <button id='green' onClick="selectNewChart(green)">Green</button>
-            <button id='sharing' onClick="selectNewChart(sharing)">Sharing</button>
+            <button id='consumption' onClick="CreateGraph('EnergyUsage', 'consumption')">Usage</button>
+            <button id='green' onClick="CreateGraph('EnergyGreen', 'green')">Green</button>
+            <button id='sharing' onClick="CreateGraph('EnergySharing', 'sharing')">Sharing</button>
+            <canvas id="myChart"></canvas>
           </div>
   
         </div>
@@ -55,6 +56,8 @@
 </body>
 
 <script>
+
+let AllCompanyData = [];
 
 const getCompanyHistoryData = async () =>
 {
@@ -65,8 +68,6 @@ const getCompanyHistoryData = async () =>
   let companyName = '<%= data.name %>'
   let companyData = '<%= companyData %>';
   let CIDdata = '<%= CID %>';
-
-  console.log(CIDdata);
 
   let companyDataArray = companyData.split(',');
   companyData = [];
@@ -93,16 +94,27 @@ const getCompanyHistoryData = async () =>
 
   for await (const data of CIDdata) {
     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
+    const alldata = getAllDataFromJSON(metadata);
+    AllCompanyData.push(alldata);
+
     let img = getImageFromJSON(metadata);
 
     img.then((result) => {
+        const div = document.createElement("div");
         const imageElement = document.createElement("img");
+        const date = document.createElement("h2");
         imageElement.src = result;
-        imageElement.className = "ProgressbarItem";
+        div.className = "ProgressbarItem";
+        date.innerHTML = "06-06-2023";
+        div.appendChild(imageElement);
+        div.appendChild(date);
         // imageElement.onclick ADD LINK TO NFT
-        document.getElementById('NFTHistory').appendChild(imageElement);
+        document.getElementById('NFTHistory').appendChild(div);
     });
   }
+
+  // Initial graph update with EnergyUsage data
+  CreateGraph("EnergyUsage", "consumption");
 };
 
 async function getImageFromJSON(jsonLink) {
@@ -119,6 +131,120 @@ async function getImageFromJSON(jsonLink) {
   }
 }
 
+async function getAllDataFromJSON(jsonLink) {
+  try {
+    const response = await fetch(jsonLink);
+    const jsonData = await response.json();
+
+    return jsonData;
+  } catch (error) {
+    console.error("Error fetching JSON data:", error);
+    return null;
+  }
+}
+
+function CreateGraph(type, buttonId){
+
+  const dataPromises = AllCompanyData;
+
+console.log("UPDATINGGGG" + dataPromises);
+
+Promise.all(dataPromises)
+  .then((dataArray) => {
+    let data;
+    if(type == "EnergyUsage"){
+      data = dataArray.map(
+      (dataObj) => parseFloat(dataObj.attributes[0].EnergyUsage)
+      );
+    }
+    if(type == "EnergySharing"){
+      data = dataArray.map(
+      (dataObj) => parseFloat(dataObj.attributes[0].EnergySharing)
+      );
+    }
+    if(type == "EnergyGreen"){
+      data = dataArray.map(
+      (dataObj) => parseFloat(dataObj.attributes[0].EnergyGreen)
+      );
+    }
+
+    updateGraph(data, type, buttonId);
+  })
+  .catch((error) => {
+    console.error('Error fetching data:', error);
+  });
+}
+let myChart = null;
+
+function updateGraph(data, type, buttonId) {
+
+  if (myChart) {
+    myChart.destroy();
+  }
+
+  const canvas = document.getElementById('myChart');
+  canvas.width = 800;
+  canvas.height = 300;
+
+  const ctx = canvas.getContext('2d');
+
+  // Remove the 'let' declaration from myChart here
+  myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({ length: data.length }, (_, index) => `EPCToken ${index + 1}`), // Generate labels dynamically
+      datasets: [
+        {
+          label: type,
+          data: data,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+          },
+        },
+        y: {
+          title: {
+            display: true,
+          },
+        },
+      },
+      layout: {
+        padding: {
+          left: 0,
+          right: 0,
+          top: 20,
+          bottom: 20,
+        },
+      },
+    },
+  });
+
+  // Reset color of all buttons
+  const buttons = document.getElementsByTagName('button');
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove('selectedButton');
+  }
+
+  // Apply selected color to the clicked button
+  const selectedButton = document.getElementById(buttonId);
+  selectedButton.classList.add('selectedButton');
+}
 
 getCompanyHistoryData();
 </script>
