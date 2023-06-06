@@ -92,8 +92,6 @@ const getCompanyHistoryData = async () =>
     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
     let img = getImageFromJSON(metadata);
 
-    console.log("hoi");
-
     img.then((result) => {
         const imageElement = document.createElement("img");
         imageElement.src = result;
