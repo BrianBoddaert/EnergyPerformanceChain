@@ -1,0 +1,34 @@
+.HeaderInfo{
+    padding-top: 200px;
+    display: flex;
+    justify-content: center;
+    font-family: 'TitleFont';
+    font-size: 40px;
+    color: rgb(79, 93, 77);
+}
+
+.ContentInfo{
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.ContentInfo button{
+    width: 200px;
+    height: 60px;
+    border-radius: 5px;
+    background-color: rgb(141, 220, 123);
+    border: 2px solid rgb(79, 127, 68);
+    font-family: 'TitleFont';
+    font-size: 23px;
+    color: rgb(62, 85, 46);
+    cursor: pointer;
+}
+
+.ContentInfo button:hover{
+    background-color: rgb(118, 185, 104);
+}
+
+.BackgroundImageInfo{
+    height: 300px;
+}

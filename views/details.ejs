@@ -48,11 +48,13 @@
   
         </div>
       </div>
+      <img class="BackgroundImageDetails" src='Images/FooterBackground.png'></img>
 </body>
 
 <script>
 
 let AllCompanyData = [];
+let CIDdata = '<%= CID %>';
 
 const getCompanyHistoryData = async () =>
 {
@@ -62,7 +64,7 @@ const getCompanyHistoryData = async () =>
 
   let companyName = '<%= data.name %>'
   let companyData = '<%= companyData %>';
-  let CIDdata = '<%= CID %>';
+  
 
   let companyDataArray = companyData.split(',');
   companyData = [];
@@ -87,6 +89,8 @@ const getCompanyHistoryData = async () =>
     }
   }
 
+  const divMapping = new Map();
+
   for await (const data of CIDdata) {
     const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
     const alldata = getAllDataFromJSON(metadata);
@@ -106,10 +110,22 @@ const getCompanyHistoryData = async () =>
         div.appendChild(imageElement);
         div.appendChild(date);
         // imageElement.onclick ADD LINK TO NFT
-        document.getElementById('NFTHistory').appendChild(div);
-        //document.getElementById('NFTHistory').appendChild(imageElement);
+        //document.getElementById('NFTHistory').appendChild(div);
+        console.log(data[0].slice(0, 6));
+        const index = parseInt(data[0].slice(0, 6), 10);
+        divMapping.set(index, div);
+        document.getElementById('NFTHistory').appendChild(div); //GET RID OF THIS ONE
     });
   }
+  
+// Convert the Map entries to an array and sort it in descending order based on keys
+const sortedMapping = Array.from(divMapping).sort(([keyA], [keyB]) => keyB - keyA);
+console.log(sortedMapping);
+
+// Loop through the sorted mapping
+for (const [key, value] of sortedMapping) {
+  document.getElementById('NFTHistory').appendChild(value);
+}
 
   // Initial graph update with EnergyUsage data
   CreateGraph("EnergyUsage", "consumption");
@@ -143,9 +159,7 @@ async function getAllDataFromJSON(jsonLink) {
 
 function CreateGraph(type, buttonId){
 
-  const dataPromises = AllCompanyData;
-
-console.log("UPDATINGGGG" + dataPromises);
+const dataPromises = AllCompanyData;
 
 Promise.all(dataPromises)
   .then((dataArray) => {
@@ -186,18 +200,19 @@ function updateGraph(data, type, buttonId) {
   canvas.height = 300;
 
   const ctx = canvas.getContext('2d');
+  console.log(CIDdata[0][0]);
 
   // Remove the 'let' declaration from myChart here
   myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: Array.from({ length: data.length }, (_, index) => `EPCToken ${index + 1}`), // Generate labels dynamically
+      labels: Array.from({ length: data.length }, (_, index) => `${CIDdata[index][0].slice(0, 4)}-${CIDdata[index][0].slice(4, 6)}`), // Generate labels dynamically
       datasets: [
         {
           label: type,
           data: data,
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(164, 30, 20, 0.8)',
+          borderColor: 'rgba(241, 48, 35, 1)',
           borderWidth: 1,
         },
       ],

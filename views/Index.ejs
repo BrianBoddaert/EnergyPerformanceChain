@@ -4,6 +4,7 @@
 		<link rel="stylesheet" href="Styles.css">
 		<link rel="stylesheet" href="Header.css">
 		<link rel="stylesheet" href="AboutUs.css">
+		<link rel="stylesheet" href="Info.css">
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	</head>
 <body onload="restoreSelectedOption()">
@@ -18,7 +19,6 @@
     	</div>
     	<div class="buttonsholder">
         	<a href="/"><button>Dashboard</button></a>
-        	<a href="/about"><button>About us</button></a>
         	<a href="/register"><button>Register</button></a>
 			<a href="/update"><button>Update</button></a>
     	</div>
@@ -76,6 +76,18 @@
 			  </div>
 			</div>
 		</div>
+	  </div>
+	  <div class="Main">
+		<div class="HeaderInfo">
+		  Get in touch and improve your company image!
+		</div>
+
+		<div class="ContentInfo">
+		  <a href="/register"><button>Register</button></a>
+		</div>
+
+		<img class="BackgroundImageInfo" src='Images/FooterBackground.png'></img>
+
 	  </div>
 </body>
 
@@ -163,6 +175,19 @@
 					break;
 			}
     	});
+
+		const elements = document.querySelectorAll('.makeClicky');
+		elements.forEach(element => {
+			const originalText = element.innerHTML;
+
+			element.addEventListener('mouseenter', () => {
+				element.textContent = '-' + originalText + '-';
+			});
+
+			element.addEventListener('mouseleave', () => {
+				element.textContent = originalText;
+			});
+		});
 	}
 
 	function handleButtonClick(index){
@@ -179,7 +204,6 @@
 				console.error('Error:', err);
 			}
 		});
-
   	}
 
 </script>

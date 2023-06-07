@@ -12,7 +12,8 @@
   font-style: normal;
 }
 
-.Container {
+body{
+  margin: 0px;
 }
 
 .Content{
@@ -82,7 +83,6 @@
 
 .ProgressChart{
   margin-top: 20px;
-  height: 200px;
 }
 
 .ProgressChart h4{
@@ -101,11 +101,25 @@
   height: 30px;
 }
 
+.ProgressChart button:hover{
+  width: 106px;
+  height: 31px;
+}
+
+
+
 .nonSelectedButton{
   margin: 5px;
   border: 2px solid rgb(92, 156, 102);
   background-color: rgb(100, 167, 111);
   border-radius: 3px;
+  width: 100px;
+  height: 30px;
+}
+
+.nonSelectedButton:hover{
+  width: 106px;
+  height: 31px;
 }
 
 .selectedButton{
@@ -113,6 +127,13 @@
   border: 2px solid rgb(225, 214, 68) !important;
   background-color: rgb(240, 214, 82) !important;
   border-radius: 3px;
+  width: 100px;
+  height: 30px;
+}
+
+.selectedButton:hover {
+  width: 106px;
+  height: 31px;
 }
 
 .companyname{
@@ -128,4 +149,9 @@
   border-radius: 10px;
   width: 30%;
   margin-bottom: 10px;
+}
+
+.BackgroundImageDetails{
+  height: 200px;
+  width: 100%;
 }
