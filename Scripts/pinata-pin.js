@@ -12,6 +12,8 @@ const sharp = require('sharp');
 const { promisify } = require('util');
 const readFileAsync = promisify(fs.readFile);
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const lerpColor = require('color-rgba').lerpColor;
+
 //Pinata details
 const JWT = process.env.JWT
 //Web3 details
@@ -22,7 +24,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0x0B5FDBa4D8fd649D9e9269903aCbce134768e558' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0xe8C1818545116EAcfC3C7F4c467Ad768e426E507' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -150,6 +152,23 @@ const createFolders = async () =>
   });
 }
 
+function lerpColorFunction(color1, color2, ratio)
+{
+  const r = Math.round(clamp(lerp(color1.r, color2.r, ratio), 0, 255));
+  const g = Math.round(clamp(lerp(color1.g, color2.g, ratio), 0, 255));
+  const b = Math.round(clamp(lerp(color1.b, color2.b, ratio), 0, 255));
+  return `rgb(${r},${g},${b})`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+    
+function lerp(value1, value2, ratio)
+{
+  return value1 * (1 - ratio) + value2 * ratio;
+}
+
 const createImage = async (_id) =>
 {
   const midRange = 0.5;
@@ -169,10 +188,14 @@ const createImage = async (_id) =>
   const startAngle3 = 2 * anglePerPart;
   const endAngle3 = 2 * Math.PI;
 
-  // Calculate the RGB color values based on the input values
-  const color1 = `rgba(${Math.round((1 - colorVariable1) * 255)}, ${Math.round(colorVariable1 * 255)}, 0, 1)`;
-  const color2 = `rgba(${Math.round((1 - colorVariable2) * 255)}, ${Math.round(colorVariable2 * 255)}, 0, 1)`;
-  const color3 = `rgba(${Math.round((1 - colorVariable3) * 255)}, ${Math.round(colorVariable3 * 255)}, 0, 1)`;
+  // Define the start and end colors
+  const startColor = { r: 230, g: 71, b: 57 };
+  const endColor = { r: 76, g: 188, b: 91 };
+
+  // Calculate the lerped colors
+  const color1 = lerpColorFunction(startColor, endColor, colorVariable1);
+  const color2 = lerpColorFunction(startColor, endColor, colorVariable2);
+  const color3 = lerpColorFunction(startColor, endColor, colorVariable3);
 
   // Create a new blank image with a transparent background
   const image = sharp({
