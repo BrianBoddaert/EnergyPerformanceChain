@@ -55,6 +55,7 @@
   background-color: rgb(248, 250, 245);
   border: 2px solid rgb(169, 173, 169);
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .Progressbar img{
@@ -62,7 +63,6 @@
   padding: 50px;
   height: 100px;
   padding-bottom: 20px;
-  cursor: pointer;
 }
 
 .Progressbar h2{
@@ -74,6 +74,10 @@
 
 .ProgressbarItem p{
   font-size: 15px;
+}
+
+.ProgressbarItem:hover {
+  transform: scale(1.1);
 }
 
 .ProgressChart{

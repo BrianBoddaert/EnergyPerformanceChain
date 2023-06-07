@@ -102,7 +102,7 @@ const getCompanyHistoryData = async () =>
         div.className = "ProgressbarItem";
         const formattedStr = `${data[0].slice(0, 4)}-${data[0].slice(4, 6)}`;
         date.innerHTML = formattedStr;
-        imageElement.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0x0B5FDBa4D8fd649D9e9269903aCbce134768e558/instance/" + companyID + data[0] + "/token-transfers") };
+        div.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0x0B5FDBa4D8fd649D9e9269903aCbce134768e558/instance/" + companyID + data[0] + "/token-transfers") };
         div.appendChild(imageElement);
         div.appendChild(date);
         // imageElement.onclick ADD LINK TO NFT
