@@ -57,10 +57,6 @@ app.get('/register', async (req, res) => {
     res.render('Register');
 });
 
-app.get('/update', async (req, res) => {
-    res.render('Update');
-});
-
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.post('/register', urlencodedParser, async function (req, res) {
@@ -75,56 +71,24 @@ app.post('/register', urlencodedParser, async function (req, res) {
       }
 });
 
-app.post('/update', urlencodedParser, function (req, res) {
-    // Read the existing JSON file
-   // updateObjectByCName();
+app.get('/register/update', async (req, res) => {
+    res.render('Register');
 });
 
-// function updateObjectByCName(s, updatedData, callback) {
-//     // Read the existing JSON file
-//     fs.readFile('data.json', 'utf8', (err, data) => {
-//         if (err) {
-//             console.error(err);
-//             // Handle error, e.g., call the callback with an error
-//             callback(err);
-//             return;
-//         }
+app.post('/register/update', urlencodedParser, async function (req, res) {
+    try {
+        const result = await logic.UpdateToJson(req, res);
+        if (result) {
+          res.send('Successfully updated!');
+        }
+      } catch (error) {
+        // Handle error, e.g., send an error response
+        res.sendStatus(500);
+      }
+});
 
-//         try {
-//             // Parse the existing JSON data into a JavaScript array
-//             const jsonData = JSON.parse(data);
-
-//             // Find the object with matching cname
-//             const matchingObject = jsonData.find(obj => obj.cname === s);
-
-//             if (matchingObject) {
-//                 // Update the matching object
-//                 Object.assign(matchingObject, updatedData);
-
-//                 // Convert the updated JavaScript array back to JSON
-//                 const updatedJsonData = JSON.stringify(jsonData);
-
-//                 // Write the updated JSON data back to the file
-//                 fs.writeFile('data.json', updatedJsonData, (err) => {
-//                     if (err) {
-//                         console.error(err);
-//                         // Handle error, e.g., call the callback with an error
-//                         callback(err);
-//                     } else {
-//                         console.log('Data updated and saved successfully');
-//                         // Call the callback indicating success
-//                         callback(null);
-//                     }
-//                 });
-//             } else {
-//                 console.log('No object with matching cname found');
-//                 // Call the callback indicating no matching object found
-//                 callback(null);
-//             }
-//         } catch (error) {
-//             console.error('Failed to parse JSON:', error);
-//             // Handle error, e.g., call the callback with an error
-//             callback(error);
-//         }
-//     });
-// }
+//This just gets it
+app.get('/isWalletIDRegistered', async (req, res) => {
+    const result = await logic.IsWalletIDRegistered(req.query.address);
+    res.json(result);
+});
