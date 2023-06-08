@@ -39,6 +39,9 @@ body{
 .Progressbar{
   display: flex;
   height: 250px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 20px;
 }
 
 .ProgressHeader{
