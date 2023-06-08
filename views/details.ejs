@@ -73,45 +73,41 @@ const getCompanyHistoryData = async () =>
     }
   }
 
-  const divMapping = new Map();
+  const divMapping = new Map([]);
 
-  for await (const data of CIDdata) {
-    const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
-    const alldata = getAllDataFromJSON(metadata);
-    AllCompanyData.push(alldata);
+const promises = CIDdata.map(async (data) => {
+  const metadata = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + data[1] + '/' + companyID + data[0] + '.json';
+  const alldata = getAllDataFromJSON(metadata);
+  AllCompanyData.push(alldata);
 
-    let img = getImageFromJSON(metadata);
+  let img = getImageFromJSON(metadata);
 
-    img.then((result) => {
-        const div = document.createElement("div");
-        const imageElement = document.createElement("img");
-        const date = document.createElement("h2");
-        imageElement.src = result;
-        div.className = "ProgressbarItem";
-        const formattedStr = `${data[0].slice(0, 4)}-${data[0].slice(4, 6)}`;
-        date.innerHTML = formattedStr;
-        div.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0xe8C1818545116EAcfC3C7F4c467Ad768e426E507/instance/" + companyID + data[0] + "/token-transfers") };
-        div.appendChild(imageElement);
-        div.appendChild(date);
-        // imageElement.onclick ADD LINK TO NFT
-        //document.getElementById('NFTHistory').appendChild(div);
-        console.log(data[0].slice(0, 6));
-        const index = parseInt(data[0].slice(0, 6), 10);
-        divMapping.set(index, div);
-        document.getElementById('NFTHistory').appendChild(div); //GET RID OF THIS ONE
-    });
-  }
-  
-// Convert the Map entries to an array and sort it in descending order based on keys
-const sortedMapping = Array.from(divMapping).sort(([keyA], [keyB]) => keyB - keyA);
-console.log(sortedMapping);
+  return img.then((result) => {
+    const div = document.createElement("div");
+    const imageElement = document.createElement("img");
+    const date = document.createElement("h2");
+    imageElement.src = result;
+    div.className = "ProgressbarItem";
+    const formattedStr = `${data[0].slice(0, 4)}-${data[0].slice(4, 6)}`;
+    date.innerHTML = formattedStr;
+    div.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0xe8C1818545116EAcfC3C7F4c467Ad768e426E507/instance/" + companyID + data[0] + "/token-transfers") };
+    div.appendChild(imageElement);
+    div.appendChild(date);
+    const index = parseInt(data[0].slice(0, 6), 10);
+    divMapping.set(index, div);
+  });
+});
 
-// Loop through the sorted mapping
-for (const [key, value] of sortedMapping) {
-  document.getElementById('NFTHistory').appendChild(value);
-}
+Promise.all(promises).then(() => {
+  const array = Array.from(divMapping);
 
-  // Initial graph update with EnergyUsage data
+  array.sort((a, b) => a[0] - b[0]);
+
+  array.forEach(([key, value]) => {
+    document.getElementById('NFTHistory').appendChild(value);
+  });
+});
+
   CreateGraph("EnergyUsage", "consumption");
 };
 
@@ -148,19 +144,20 @@ const dataPromises = AllCompanyData;
 Promise.all(dataPromises)
   .then((dataArray) => {
     let data;
+    console.log(dataArray);
     if(type == "EnergyUsage"){
       data = dataArray.map(
-      (dataObj) => parseFloat(dataObj.attributes[0].EnergyUsage)
+        (dataObj) => parseFloat(1 - ((dataObj.attributes[0].EnergyUsage - dataObj.attributes[0].AverageUsage) / (2 * dataObj.attributes[0].AverageUsage) + 0.5))
       );
     }
     if(type == "EnergySharing"){
       data = dataArray.map(
-      (dataObj) => parseFloat(dataObj.attributes[0].EnergySharing)
+        (dataObj) => parseFloat(1 - ((dataObj.attributes[0].EnergySharing - dataObj.attributes[0].AverageSharing) / (2 * dataObj.attributes[0].AverageSharing) + 0.5))
       );
     }
     if(type == "EnergyGreen"){
-      data = dataArray.map(
-      (dataObj) => parseFloat(dataObj.attributes[0].EnergyGreen)
+      data = dataArray.map(//1 - ((verbruik - average) / (2 * average) + 0.5)
+      (dataObj) => parseFloat(1 - ((dataObj.attributes[0].EnergyGreen - dataObj.attributes[0].AverageGreen) / (2 * dataObj.attributes[0].AverageGreen) + 0.5))
       );
     }
 
@@ -179,6 +176,8 @@ function updateGraph(data, type, buttonId) {
     myChart.destroy();
   }
 
+  console.log(data);
+
   const canvas = document.getElementById('myChart');
   canvas.width = 800;
   canvas.height = 300;
@@ -190,7 +189,7 @@ function updateGraph(data, type, buttonId) {
   myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: Array.from({ length: data.length }, (_, index) => `${CIDdata[index][0].slice(0, 4)}-${CIDdata[index][0].slice(4, 6)}`), // Generate labels dynamically
+      labels: Array.from({ length: data.length }, (_, index) => `${CIDdata[index][0].slice(0, 4)}-${CIDdata[index][0].slice(4, 6)}`),
       datasets: [
         {
           label: type,
