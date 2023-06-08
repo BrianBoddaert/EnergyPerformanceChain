@@ -212,7 +212,7 @@ const createImage = async (_id) =>
     {
       input: Buffer.from(
         `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color1}" />
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color3}" />
         </svg>`
       ),
       left: 0,
@@ -221,7 +221,7 @@ const createImage = async (_id) =>
     {
       input: Buffer.from(
         `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color2}" />
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color1}" />
         </svg>`
       ),
       left: 0,
@@ -230,7 +230,7 @@ const createImage = async (_id) =>
     {
       input: Buffer.from(
         `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color3}" />
+          <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color2}" />
         </svg>`
       ),
       left: 0,
