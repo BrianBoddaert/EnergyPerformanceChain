@@ -155,6 +155,18 @@ body{
 }
 
 .BackgroundImageDetails{
-  height: 200px;
   width: 100%;
+  margin-top: auto;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
