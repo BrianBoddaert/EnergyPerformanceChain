@@ -90,21 +90,3 @@ body{
       font-size: 1.1em;
       transform: scale(1.01);
     }
-
-    #RegisterForm p{
-      display:inline
-    }
-
-    #UpdateForm p{
-      display:inline
-    }
-    
-    .biggerTextBox
-    {
-      height:60px;
-    }
-
-    #description
-    {
-      resize: none;
-    }

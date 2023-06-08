@@ -1,0 +1,162 @@
+@font-face {
+  font-family: 'TitleFont';
+  src: url('/Fonts/PonziHat.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NormalText';
+  src: url('/Fonts/Freshmen.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0px;
+}
+
+.RegisterAndUpdateForms {
+  margin: 0 auto;
+  margin-top: 100px;
+  width: 60%;
+  font-family: 'NormalText', sans-serif;
+}
+
+.RegisterAndUpdateForms h2 {
+  font-size: 25px;
+  font-family: 'TitleFont', sans-serif;
+  color: rgb(51, 137, 60);
+  margin-bottom: 5px;
+}
+
+.RegisterAndUpdateForms label {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.RegisterAndUpdateForms input[type="text"],
+.RegisterAndUpdateForms textarea,
+.RegisterAndUpdateForms select {
+  width: 400px;
+  padding: 10px;
+  border: 1px solid rgb(169, 173, 169);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  resize: none;
+}
+
+.RegisterAndUpdateForms .biggerTextBox {
+  height: 100px;
+}
+
+.RegisterAndUpdateForms input[type="number"]
+{
+  width: 400px;
+  padding: 10px;
+  border: 1px solid rgb(169, 173, 169);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  resize: none;
+}
+
+.RegisterAndUpdateForms p {
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.RegisterAndUpdateForms input[type="submit"] {
+  align-content: start!important;
+  margin:auto!important;
+  display:inline!important;
+}
+
+.RegisterAndUpdateForms input[type="submit"]:hover {
+  background-color: rgb(28, 64, 34);
+}
+
+.RegisterAndUpdateForms button, input[type="submit"]{
+  padding: 10px 20px;
+  background-color: rgb(158, 212, 167);
+  border: 2px solid rgb(143, 208, 153);
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  align-content: center;
+  margin: 0 auto;
+  display: block;
+}
+
+.ActivatedButton {
+  background-color: rgb(240, 214, 82) !important;
+  border: 2px solid rgb(225, 214, 68) !important;
+}
+
+
+.RegisterAndUpdateForms #hiddenText {
+  background-color: rgb(240, 214, 82);
+  border: 2px solid rgb(225, 214, 68);
+  border-radius: 5px;
+  padding: 15px 15px 15px 15px;
+
+  max-width:500px;
+  margin:15 auto 15 auto;
+  align-content: center;
+}
+
+.RegisterAndUpdateForms #hiddenText p {
+  margin-bottom: 10px;
+}
+
+.RegisterAndUpdateForms #metamaskaddresstext {
+  font-weight: bold;
+}
+
+.RegisterAndUpdateForms select {
+  width: 400px;
+  padding: 10px;
+  border: 1px solid rgb(169, 173, 169);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.RegisterAndUpdateForms form {
+  width: fit-content;
+  margin: 0 auto 40px auto;
+  align-content: center;
+}
+
+.RegisterAndUpdateForms .unit{
+  margin-left:5px;
+  font-size:16px;
+}
+
+.RegisterAndUpdateForms .energyformquestion {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.RegisterAndUpdateForms h3 {
+  color: rgb(55, 67, 37);
+  font-family: 'HeaderFont';
+  font-size: 20px;
+  margin: 5px 0px 5px 0px;
+
+}
+
+.hiddenTextInnerText
+{
+  width:min-content;
+  margin: 0 auto;
+  align-content: center;
+}
+/* #RegisterForm {
+  border: 1px solid rgb(51, 137, 60);
+  padding: 0px 20px 20px 20px;
+}
+
+#UpdateForm {
+  border: 1px solid rgb(51, 137, 60);
+  padding: 0px 20px 20px 20px;
+} */

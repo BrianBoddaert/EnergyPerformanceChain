@@ -2,17 +2,19 @@
     <TITLE>EPChain Register</TITLE>
 	<head>
 		<link rel="stylesheet" href="Styles.css">
-    <link rel="stylesheet" href="Header.css">
+    <link rel="stylesheet" href="Register.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	</head>
     <body>
-        <div className={`Container ${styles.Container}`}>
-            <Header />
+      <%- include("header") %>
+        <div class="RegisterAndUpdateForms">
             <button onclick="handleLoginMetaDataButtonClick()" id='metamaskbutton'>Link Metamask</button><br/>
             <div id='hiddenText' hidden>
+              <div class="hiddenTextInnerText">
                 <p>Successfully linked metamask address!</p>
-                <p id="metamaskaddresstext" name="metamaskaddresstext"></p> 
+                <p id="metamaskaddresstext" name="metamaskaddresstext"></p><br/>
                 <p>Open your metamask browser addon and click "connected" if you want to disconnect</p>
+              </div>
             </div>
         
             <form hidden id="RegisterForm" method="POST" action="/register" enctype="application/x-www-form-urlencoded">    
@@ -48,12 +50,19 @@
                     <option value="Nonprofit and Philanthropy">Nonprofit and Philanthropy</option>
                     <option value="Military and Defense">Military and Defense</option>
                 </select><br/>
-                <label>This months energy spending:</label><br/>
-                <input type="number" id="energyspent" name="energyspent"/><p> joule</p><br/>
-                <label>This months energy shared:</label><br/>
-                <input type="number" id="energyshared" name="energyshared"/><p> joule</p><br/>
-                <label>This months green energy used:</label><br/>
-                <input type="number" id="energygreen" name="energygreen"/><p> joule</p><br/>
+                <h3>This months energy provider statistics: </h3>
+                <div class="energyformquestion">
+                  <label>Energy spending:</label><br/>
+                  <input type="number" id="energyspent" name="energyspent"/><p class="unit"> kWh</p>
+                </div>
+                <div class="energyformquestion">
+                <label>Energy shared:</label><br/>
+                <input type="number" id="energyshared" name="energyshared"/><p class="unit"> kWh</p>
+              </div>
+                <div class="energyformquestion">
+                <label>Energy used:</label><br/>
+                <input type="number" id="energygreen" name="energygreen"/><p class="unit"> kWh</p>
+              </div>
                 <br/>
                 <input type="submit" id="submitButton" value="Submit"/><br/>
             </form>
@@ -61,17 +70,18 @@
             <form hidden id="UpdateForm" method="POST" action="/register/update" enctype="application/x-www-form-urlencoded">    
               <h2>Update</h2>
                 <input hidden type="text" id="update_metamaskaddressstorage" name="metamaskaddressstorage"/>
-                <label>This months energy spending:</label><br/>
-                <input type="number" id="update_energyspent" name="energyspent"/><p> joule</p><br/>
-                <label>This months energy shared:</label><br/>
-                <input type="number" id="update_energyshared" name="energyshared"/><p> joule</p><br/>
-                <label>This months green energy used:</label><br/>
-                <input type="number" id="update_energygreen" name="energygreen"/><p> joule</p><br/>
+                <h3>This months energy provider statistics: </h3>
+                <label>Energy spending:</label><br/>
+                <input type="number" id="update_energyspent" name="energyspent"/><p class="unit"> kWh</p><br/>
+                <label>Energy shared:</label><br/>
+                <input type="number" id="update_energyshared" name="energyshared"/><p class="unit"> kWh</p><br/>
+                <label>Energy used:</label><br/>
+                <input type="number" id="update_energygreen" name="energygreen"/><p class="unit"> kWh</p><br/>
                 <br/>
                 <input type="submit" id="update_submitButton" value="Submit"/><br/>
             </form>
-            
         </div>
+        <%- include("footer") %>
     </body>
     
 
@@ -117,7 +127,8 @@
           metaMaskAddressStorage.value = accounts[0];
           update_metamaskaddressstorage.value = accounts[0];
           metaMaskButton.innerText = 'Metamask is linked';
-
+          metaMaskButton.classList.add('ActivatedButton');
+          
           // Call the IsWalletIDRegistered function asynchronously
           await IsWalletIDRegistered(metaMaskAddressText.innerText)
           .then(registeredObject => {

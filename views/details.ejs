@@ -1,27 +1,11 @@
 <html>
 <head>
   <title>Details Page</title>
-  <link rel="stylesheet" href="Header.css">
   <link rel="stylesheet" href="Details.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-	<!-- HEADER -->
-    <div class="Main">
-        <img class="headerBackgroundImage" src='Images/HeaderBackground.png'></img>
-  <div class="headerContent">
-       <div class="headerImage">
-          <img src='/Images/LogoTransp.png' />
-      </div>
-           <h3 class="headerTitle">Fair Energy Certification</h3>
-      </div>
-      <div class="buttonsholder">
-          <a href="/"><button>Dashboard</button></a>
-          <a href="/about"><button>About us</button></a>
-          <a href="/register"><button>Register</button></a>
-      </div>
-  </div>	
-
+  <%- include("header") %>
     <div Class="Container">
         <div Class="Content">
           <h2 class='companyname'><%= data.name %></h2>
@@ -48,7 +32,7 @@
   
         </div>
       </div>
-      <img class="BackgroundImageDetails" src='Images/FooterBackground.png'></img>
+      <%- include("footer") %>
 </body>
 
 <script>
