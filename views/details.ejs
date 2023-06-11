@@ -111,9 +111,10 @@ Promise.all(promises).then(() => {
   array.forEach(([key, value]) => {
     document.getElementById('NFTHistory').appendChild(value);
   });
-});
 
   CreateGraph("EnergyUsage", "consumption");
+});
+
 };
 
 async function getImageFromJSON(jsonLink) {
@@ -140,6 +141,8 @@ async function getAllDataFromJSON(jsonLink) {
     return null;
   }
 }
+
+getCompanyHistoryData();
 
 function CreateGraph(type, buttonId){
 
@@ -247,6 +250,5 @@ function updateGraph(data, type, buttonId) {
   selectedButton.classList.add('selectedButton');
 }
 
-getCompanyHistoryData();
 </script>
 </html>
