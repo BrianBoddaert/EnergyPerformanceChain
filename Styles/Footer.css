@@ -1,0 +1,55 @@
+.BackgroundImageDetails {
+    position: relative;
+    display: inline-block;
+}
+
+.BackgroundImageDetails img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.BackgroundImageDetails .text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    font-size: 30px;
+    color: rgb(208, 237, 204);
+    text-decoration: none;
+}
+
+.BackgroundImageDetails a{
+    color: rgb(208, 237, 204);
+    text-decoration: underline;
+}
+
+.linkedin{
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.linkedin img{
+    width: 30px;
+    margin: 0px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.linkedin a{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.github {
+    width: 80px !important;
+}
+
+.mail {
+    width: 70px !important;
+    height: 50px !important;
+    padding-top: 20px;
+}
