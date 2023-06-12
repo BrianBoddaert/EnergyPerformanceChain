@@ -621,4 +621,6 @@ const mainFunction = async () =>
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
-const interval = setInterval(mainFunction, 3 * 60 * 1000);
+module.exports = {
+  mainFunction
+}
