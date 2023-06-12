@@ -6,7 +6,7 @@ const fs = require('fs');
 const app = express();
 
 const logic = require('./Scripts/Logic.js');
-const mintingLogic = require('./Scripts/pinata-pi.js');
+const mintingLogic = require('../Scripts/pinata-pin.js');
 
 var allJsonDataInFolder = [];
 
