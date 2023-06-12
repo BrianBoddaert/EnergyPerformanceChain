@@ -21,7 +21,7 @@ app.listen(process.env.PORT, () => {
 
 app.get('/', async (req, res) => {
     console.log("This gets called");
-    //allJsonDataInFolder = await logic.GetAllJsonsInFolder();
+    allJsonDataInFolder = await logic.GetAllJsonsInFolder();
     res.render('Index', {companyData: allJsonDataInFolder});
 });
 
