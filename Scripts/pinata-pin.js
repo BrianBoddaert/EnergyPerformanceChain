@@ -107,16 +107,29 @@ const calculateAverageValues = async () =>
   let usageSum = 0;
   let greenSum = 0;
   let sharingSum = 0;
+  
+  let amountOfCompaniesGreen = 0;
+  let amountOfCompaniesSharing = 0;
+
   for (let i = 1; i <= companyData.length - 1; i++)
   {
     usageSum += parseInt(companyData[i][1]);
-    greenSum += parseInt(companyData[i][2]);
-    sharingSum += parseInt(companyData[i][3]);
-  }
-  averageUsage = usageSum / (companyData.length - 1)
-  averageGreen = greenSum / (companyData.length - 1)
-  averageSharing = sharingSum / (companyData.length - 1)
+    
+    if (parseInt(companyData[i][2]) > 0) 
+    {
+      greenSum += parseInt(companyData[i][2]);
+      amountOfCompaniesGreen++;
+    }
 
+    if (parseInt(companyData[i][3]) > 0) 
+    {
+      sharingSum += parseInt(companyData[i][3]);
+      amountOfCompaniesSharing++;
+    }
+  }
+  averageUsage = usageSum / (companyData.length - 1);
+  averageGreen = greenSum / amountOfCompaniesGreen;
+  averageSharing = sharingSum / amountOfCompaniesSharing;
 }
 
 const createFolders = async () =>
@@ -172,30 +185,58 @@ function lerp(value1, value2, ratio)
 const createImage = async (_id) =>
 {
   const midRange = 0.5;
-  const colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
-  const colorVariable2 = 1 - ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
-  const colorVariable3 = 1 - ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
+  let colorVariable1 = 0, colorVariable2 = 0, colorVariable3 = 0, totalSections = 0;
+
+  if (companyData[_id][1] > 0)
+  {
+    colorVariable1 = 1 - ((companyData[_id][1] - averageUsage) / (2 * averageUsage) + midRange);
+    totalSections++;
+  }
+  if (companyData[_id][2] > 0)
+  {
+    colorVariable2 = ((companyData[_id][2] - averageGreen) / (2 * averageGreen) + midRange);
+    totalSections++;
+  }
+  if (companyData[_id][3] > 0)
+  {
+    colorVariable3 = ((companyData[_id][3] - averageSharing) / (2 * averageSharing) + midRange);
+    totalSections++;
+  }
 
   const imageSize = 1000; // Size of the image in pixels
   const radius = imageSize / 2;
-  const anglePerPart = (2 * Math.PI) / 3;
+  const anglePerPart = (2 * Math.PI) / totalSections;
 
   // Calculate the start and end angles for each part
-  const startAngle1 = 0;
-  const endAngle1 = anglePerPart;
-  const startAngle2 = anglePerPart;
-  const endAngle2 = 2 * anglePerPart;
-  const startAngle3 = 2 * anglePerPart;
-  const endAngle3 = 2 * Math.PI;
+  let startAngle1 = 0, endAngle1 = 0, startAngle2 = 0, endAngle2 = 0, startAngle3 = 0, endAngle3 = 0;
+  
+  if (totalSections == 2)
+  {
+    startAngle1 = -(Math.PI / 2);
+    endAngle1 = anglePerPart + -(Math.PI / 2);
+    startAngle2 = anglePerPart + -(Math.PI / 2);
+    endAngle2 = 2 * Math.PI + -(Math.PI / 2);
+  }
+  else
+  {
+    startAngle1 = 0;
+    endAngle1 = anglePerPart;
+    startAngle2 = anglePerPart;
+    endAngle2 = 2 * anglePerPart;
+    startAngle3 = 2 * anglePerPart;
+    endAngle3 = 2 * Math.PI;
+  }
 
   // Define the start and end colors
   const startColor = { r: 230, g: 71, b: 57 };
   const endColor = { r: 76, g: 188, b: 91 };
 
   // Calculate the lerped colors
-  const color1 = lerpColorFunction(startColor, endColor, colorVariable1);
-  const color2 = lerpColorFunction(startColor, endColor, colorVariable2);
-  const color3 = lerpColorFunction(startColor, endColor, colorVariable3);
+  let color1 = 0, color2 = 0, color3 = 0;
+  
+  if (colorVariable1 != 0) color1 = lerpColorFunction(startColor, endColor, colorVariable1);
+  if (colorVariable2 != 0) color2 = lerpColorFunction(startColor, endColor, colorVariable2);
+  if (colorVariable3 != 0) color3 = lerpColorFunction(startColor, endColor, colorVariable3);
 
   // Create a new blank image with a transparent background
   const image = sharp({
@@ -207,43 +248,98 @@ const createImage = async (_id) =>
     }
   });
 
+  // Paths to the base image and overlay image
+  let overlayImagePath = '';
+  
   // Draw each part of the circle with the corresponding color
-  image.composite([
+  if (totalSections == 1)
+  {
+    overlayImagePath = '../NFTOverlay1.png';
+    image.composite
+    ([
+      {
+        input: Buffer.from( `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+        <circle cx="${radius}" cy="${radius}" r="${radius}" fill="${color1}" />
+      </svg>`),
+        left: 0,
+        top: 0
+      },
+    ]);
+  }
+  else if (totalSections == 2)
+  {
+    let secondColor = 0;
+
+    if (color1 != 0 && color2 != 0)
     {
-      input: Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color3}" />
-        </svg>`
-      ),
-      left: 0,
-      top: 0
-    },
-    {
-      input: Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color1}" />
-        </svg>`
-      ),
-      left: 0,
-      top: 0
-    },
-    {
-      input: Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
-          <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color2}" />
-        </svg>`
-      ),
-      left: 0,
-      top: 0
+      overlayImagePath = '../NFTOverlay2-Usage&Green.png';
+      secondColor = color2;
     }
-  ]);
+    else
+    {
+      overlayImagePath = '../NFTOverlay2-Usage&Sharing.png';
+      secondColor = color3;
+    }
+
+    image.composite([
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${secondColor}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color1}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+    ]);
+  }
+  else
+  {
+    overlayImagePath = '../NFTOverlay3.png';
+
+    image.composite([
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle1) * radius + radius},${Math.sin(startAngle1) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle1) * radius + radius},${Math.sin(endAngle1) * radius + radius} Z" fill="${color3}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle2) * radius + radius},${Math.sin(startAngle2) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle2) * radius + radius},${Math.sin(endAngle2) * radius + radius} Z" fill="${color1}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      },
+      {
+        input: Buffer.from(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${imageSize}" height="${imageSize}">
+            <path d="M ${radius},${radius} L ${Math.cos(startAngle3) * radius + radius},${Math.sin(startAngle3) * radius + radius} A ${radius},${radius} 0 0 1 ${Math.cos(endAngle3) * radius + radius},${Math.sin(endAngle3) * radius + radius} Z" fill="${color2}" />
+          </svg>`
+        ),
+        left: 0,
+        top: 0
+      }
+    ]);
+  }
 
   // Save the image to a file with a transparent background
   const outputPath = path.join(__dirname, '../' + imageFolder, _id + date + '.png');
   await image.png().toFile(outputPath);
-
-  // Paths to the base image and overlay image
-  const overlayImagePath = '../NFTOverlay.png';
 
   // Load the base image
   Jimp.read(outputPath)
