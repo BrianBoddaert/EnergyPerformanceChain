@@ -50,10 +50,9 @@ const updateCurrentDate = async () =>
   
   //Adding 0 to the front of single digit months
   const formattedMonth = month < 10 ? `0${month}` : month;
-  
-  const formattedDate = `${year}${formattedMonth}`;
-  console.log(formattedDate);
-  date = formattedDate;
+  let formattedDate = `${year}${formattedMonth}`;
+  formattedDate = Math.floor(Math.random() * 10000); //temp code to generate unique dates
+  date = formattedDate;//formattedDate;
 }
 
 const readJSONFileAndRegisterCompanies = async () => {
@@ -622,4 +621,4 @@ const mainFunction = async () =>
 
 //Calling the main function every month
 //const interval = setInterval(mainFunction(), 30 * 24 * 60 * 60 * 1000);
-mainFunction();
+const interval = setInterval(mainFunction, 3 * 60 * 1000);
