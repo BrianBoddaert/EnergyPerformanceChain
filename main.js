@@ -6,7 +6,7 @@ const fs = require('fs');
 const app = express();
 
 const logic = require('./Scripts/Logic.js');
-//const mintingLogic = require('./Scripts/mintingLogic.js');
+const mintingLogic = require('./Scripts/mintingLogic.js');
 
 var allJsonDataInFolder = [];
 
