@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/Styles'));
 //process.env.PORT
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server NOW running on port` + process.env.PORT);
 });
 
