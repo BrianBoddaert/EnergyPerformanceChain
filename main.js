@@ -6,7 +6,7 @@ const fs = require('fs');
 const app = express();
 
 const logic = require('./Scripts/Logic.js');
-const mintingLogic = require('../Scripts/pinata-pin.js');
+const mintingLogic = require('./Scripts/mintingLogic.js');
 
 var allJsonDataInFolder = [];
 
@@ -94,5 +94,5 @@ app.get('/isWalletIDRegistered', async (req, res) => {
     res.json(result);
 });
 
-mintingLogic.mainFunction();
-const interval = setInterval(mintingLogic.mainFunction(), 3 * 60 * 1000);
+// mintingLogic.mainFunction();
+// const interval = setInterval(mintingLogic.mainFunction(), 3 * 60 * 1000);
