@@ -15,8 +15,8 @@ app.set('view engine', 'ejs');
 // This is so we can read prom the public folder in HTML files, aka read images etc
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/Styles'));
-
-app.listen(process.env.PORT, () => {
+//process.env.PORT
+app.listen(3000, () => {
     console.log(`Server NOW running on port` + process.env.PORT);
 });
 
