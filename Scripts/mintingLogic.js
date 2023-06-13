@@ -24,7 +24,7 @@ const web3 = new Web3(providerUrl);
 //Contract details
 const contractABI = require('../SmartContracts/EPChain-abi.json'); //Should be updated if we deploy a new, updated smart contract
 const { async } = require('recursive-fs/lib/copy');
-const contractAddress = '0xe8C1818545116EAcfC3C7F4c467Ad768e426E507' //This has to be deployed smart contract address on the GOERLI testnet
+const contractAddress = '0xcA78c5C7aD982D26f110A2784fCfE8F161E123A3' //This has to be deployed smart contract address on the GOERLI testnet
 const EPChainContract = new web3.eth.Contract(contractABI, contractAddress);
 //Wallet/Account details
 const privateKey = process.env.PRIVATE_KEY; //This should be updated if you use a different account/wallet
@@ -51,6 +51,7 @@ const updateCurrentDate = async () =>
   //Adding 0 to the front of single digit months
   const formattedMonth = month < 10 ? `0${month}` : month;
   let formattedDate = `${year}${formattedMonth}`;
+  console.log(formattedDate);
   date = formattedDate;
 }
 
