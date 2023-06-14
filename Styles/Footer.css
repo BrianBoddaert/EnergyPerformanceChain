@@ -17,12 +17,12 @@
     color: white;
     text-align: center;
     font-size: 30px;
-    color: rgb(208, 237, 204);
+    color: rgb(255, 255, 255);
     text-decoration: none;
 }
 
 .BackgroundImageDetails a{
-    color: rgb(208, 237, 204);
+    color: rgb(255, 255, 255);
     text-decoration: underline;
 }
 
