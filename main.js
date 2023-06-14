@@ -6,7 +6,6 @@ const fs = require('fs');
 const app = express();
 
 const logic = require('./Scripts/Logic.js');
-const mintingLogic = require('../Scripts/pinata-pin.js');
 
 var allJsonDataInFolder = [];
 
@@ -16,7 +15,7 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/Styles'));
 //process.env.PORT
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server NOW running on port` + process.env.PORT);
 });
 
@@ -93,6 +92,3 @@ app.get('/isWalletIDRegistered', async (req, res) => {
     const result = await logic.IsWalletIDRegistered(req.query.address);
     res.json(result);
 });
-
-mintingLogic.mainFunction();
-const interval = setInterval(mintingLogic.mainFunction(), 3 * 60 * 1000);

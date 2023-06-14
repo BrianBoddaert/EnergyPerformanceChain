@@ -41,13 +41,10 @@ async function LoadLatestMetaData()
 {
   var Result = [];
   const JsonsPerPageLimit = 30;
-  const year = 2023;
-  const month = '05';
-
-  //https://gateway.pinata.cloud/ipfs/QmYyJMvcBfyqACKaeN5SC6UF9bs4zEWc4SD19MHCK1z1eh/
-  // "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CID + '/' + date + _id + '.json'
 
   const len = CIDdata.length - 1;
+
+  
   const baseUrl = "https://blush-worldwide-swift-945.mypinata.cloud/ipfs/" + CIDdata[len][1] + '/';
 
   for (let i = 0; i < JsonsPerPageLimit; i++)

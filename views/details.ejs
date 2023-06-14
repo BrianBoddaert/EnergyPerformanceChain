@@ -96,7 +96,7 @@ const promises = CIDdata.map(async (data) => {
     div.className = "ProgressbarItem";
     const formattedStr = `${data[0].slice(0, 4)}-${data[0].slice(4, 6)}`;
     date.innerHTML = formattedStr;
-    div.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0xe8C1818545116EAcfC3C7F4c467Ad768e426E507/instance/" + companyID + data[0] + "/token-transfers") };
+    div.onclick = function() { window.open("https://volta-explorer.energyweb.org/token/0xcA78c5C7aD982D26f110A2784fCfE8F161E123A3/instance/" + companyID + data[0] + "/token-transfers") };
     div.appendChild(imageElement);
     div.appendChild(date);
     const index = parseInt(data[0].slice(0, 6), 10);
