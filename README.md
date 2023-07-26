@@ -2,7 +2,7 @@
 <h1>Energy performance Chain</h1>
 <h3>Goal</h3>
 <p>The Energy Performance Chain is a decentralized application that considers the energy spending of companies comparing them to other companies of similar industries, sizes and locations. </p>
-<p>Displayed and usable at Ma href="http://www.energyperformancechain.com">Energyperformancechain.com</a> </p>
+<p>Displayed and usable at <a> href="http://www.energyperformancechain.com">Energyperformancechain.com</a> </p>
 <p>Companies are compared on the following categories: </p>
 
 * Amount of energy used
